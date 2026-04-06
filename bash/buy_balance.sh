@@ -8,7 +8,7 @@ set -e
 
 # Configuration
 URL="https://preview.spl-token.signer-payer.me/api/v1/check-balance"
-BUYER_KEYPAIR="../buyer-keypair.json"
+BUYER_KEYPAIR="../demo-wallets/buyer-keypair.json"
 MINT="4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU" # DEVNET USDC
 
 # Visuals
