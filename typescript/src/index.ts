@@ -18,17 +18,27 @@ async function main() {
 
     console.log("\x1b[32m=== X402 BUYER STARTER: AGENTIC ACQUISITION ===\x1b[0m\n");
 
-    // --- Example 1: Buying a Fortune ---
+    // --- Example 1: Buying Fortunes (all categories) ---
     try {
-        console.log("\x1b[36m>>> DEMO 1: AETHERVANE DIVINATION <<<\x1b[0m");
-        const fortune = await client.buy<any>(
-            "https://preview.aethervane.signer-payer.me/api/v1/fortune",
-            { query_type: "liuyao", value: "8,7,9,7,8,6" }
-        );
-        console.log("\x1b[32m[RESULT] Divination Successful!\x1b[0m");
-        console.log(`Luck Level: ${fortune.luck_level}/5 (${fortune.luck_enum})`);
-        console.log(`Engine: ${fortune.engine}`);
-        console.log(`Reading: ${fortune.description}\n`);
+        console.log("\x1b[36m>>> DEMO 1: AETHERVANE DIVINATION (ALL CATEGORIES) <<<\x1b[0m");
+        const fortuneInputs = [
+            { query_type: "liuyao", value: "8,7,9,7,8,6" },
+            { query_type: "number", value: "386" },
+            { query_type: "name", value: "Satoshi Nakamoto" },
+            { query_type: "daily" },
+        ];
+
+        for (const input of fortuneInputs) {
+            console.log(`\x1b[33m[INPUT]\x1b[0m ${JSON.stringify(input)}`);
+            const fortune = await client.buy<any>(
+                "https://preview.aethervane.signer-payer.me/api/v1/fortune",
+                input
+            );
+            console.log("\x1b[32m[RESULT] Divination Successful!\x1b[0m");
+            console.log(`Luck Level: ${fortune.luck_level}/5 (${fortune.luck_enum})`);
+            console.log(`Engine: ${fortune.engine}`);
+            console.log(`Reading: ${fortune.description}\n`);
+        }
     } catch (e) {
         console.error("Demo 1 Failed.");
     }

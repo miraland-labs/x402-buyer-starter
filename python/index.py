@@ -14,16 +14,25 @@ async def main():
 
     print("\033[32m=== X402 BUYER STARTER: PYTHON AGENT ACQUISITION ===\033[0m\n")
 
-    # --- Example 1: Buying a Fortune ---
+    # --- Example 1: Buying Fortunes (all categories) ---
     try:
-        print("\033[36m>>> DEMO 1: AETHERVANE DIVINATION <<<\033[0m")
-        fortune = await client.buy(
-            "https://preview.aethervane.signer-payer.me/api/v1/fortune",
-            {"query_type": "liuyao", "value": "8,7,9,7,8,6"}
-        )
-        print("\033[32m[RESULT] Divination Successful!\033[0m")
-        print(f"Luck Level: {fortune['luck_level']}/5 ({fortune['luck_enum']})")
-        print(f"Reading: {fortune['description']}\n")
+        print("\033[36m>>> DEMO 1: AETHERVANE DIVINATION (ALL CATEGORIES) <<<\033[0m")
+        fortune_inputs = [
+            {"query_type": "liuyao", "value": "8,7,9,7,8,6"},
+            {"query_type": "number", "value": "386"},
+            {"query_type": "name", "value": "Satoshi Nakamoto"},
+            {"query_type": "daily"},
+        ]
+        for request in fortune_inputs:
+            print(f"\033[33m[INPUT]\033[0m {request}")
+            fortune = await client.buy(
+                "https://preview.aethervane.signer-payer.me/api/v1/fortune",
+                request
+            )
+            print("\033[32m[RESULT] Divination Successful!\033[0m")
+            print(f"Luck Level: {fortune['luck_level']}/5 ({fortune['luck_enum']})")
+            print(f"Engine: {fortune['engine']}")
+            print(f"Reading: {fortune['description']}\n")
     except Exception as e:
         print(f"Demo 1 Failed: {e}")
 

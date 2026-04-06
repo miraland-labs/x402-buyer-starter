@@ -27,8 +27,8 @@ const fortune = await client.buy("https://preview.aethervane.signer-payer.me/api
 ## 🛠️ Usage
 
 ### 1. Setup Your identity
-Copy your Solana keypair (JSON) to `buyer-keypair.json` in this folder.
-> Note: For the preview, we've provided a demo wallet `buyer-keypair.json`.
+Copy your Solana keypair (JSON) to `demo-wallets/buyer-keypair.json`.
+> Note: For the preview, a demo wallet is already provided at `demo-wallets/buyer-keypair.json`.
 
 ### 2. Run the Demos
 
@@ -52,6 +52,20 @@ cd python
 pip install -r requirements.txt
 python index.py
 ```
+
+## 🧪 Fortune Category Test Vectors
+
+The buyer demos now purchase all AetherVane fortune categories in one run. These are the exact test inputs used and the response shape observed in live preview runs.
+
+| Category (`query_type`) | Input payload | Observed response summary |
+| :--- | :--- | :--- |
+| `liuyao` | `{"query_type":"liuyao","value":"8,7,9,7,8,6"}` | `luck_level=3`, `luck_enum=NEUTRAL_FLOW`, `engine=LiuYao_Coin_Method` |
+| `number` | `{"query_type":"number","value":"386"}` | `luck_level=4`, `luck_enum=STEADY_RISE`, `engine=Meihua_Yi_Shu` |
+| `name` | `{"query_type":"name","value":"Satoshi Nakamoto"}` | `luck_level=5`, `luck_enum=SUPREME_ASCENT`, `engine=Onomancy_81` |
+| `daily` | `{"query_type":"daily"}` | `luck_level=4`, `luck_enum=STEADY_RISE`, `engine=Almanac_Daily` |
+
+All categories return JSON with core fields like `luck_level`, `luck_enum`, `risk_multiplier`, `recommended_action`, `engine`, and `description`.
+For `daily`, output is deterministic for the same UTC date, but expected to change when the date changes.
 
 ## 🔍 Key Concepts for Agents
 
