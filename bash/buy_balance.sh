@@ -23,8 +23,9 @@ echo -e "Target: SPL Token Balance Verification Service\n"
 
 # Step 1: Initial Discovery
 echo -e "${GOLD}[1/5] Discovering Service Requirements...${NC}"
-# We check the balance of a random wallet
-RES=$(curl -s -i "$URL?wallet=BeALNhc8tykF6wJBZWyXGEkb9Mfvk8JZk8miUL2JDuhw&spl-token=$MINT")
+PAYER_PUBKEY=$(solana-keygen pubkey "$BUYER_KEYPAIR")
+# We check the balance of our own wallet by default
+RES=$(curl -s -i "$URL?wallet=$PAYER_PUBKEY&spl-token=$MINT")
 
 HTTP_CODE=$(echo "$RES" | head -n 1 | cut -d' ' -f2)
 
@@ -45,7 +46,6 @@ RESOURCE=$(echo "$DECODED_HDR" | jq -c '.resource')
 
 # Step 3: Build
 echo -e "${GOLD}[3/5] Building Payment Transaction...${NC}"
-PAYER_PUBKEY=$(solana-keygen pubkey "$BUYER_KEYPAIR")
 
 BUILD_RES=$(curl -s -X POST "$FACILITATOR/api/v1/facilitator/build-exact-payment-tx" \
     -H "Content-Type: application/json" \
@@ -68,8 +68,12 @@ FINAL_PROOF=$(echo "$VERIFY_TEMPLATE" | jq -c --arg tx "$SIGNED_TX" '.paymentPay
 
 # Step 5: Settle
 echo -e "${GOLD}[5/5] Submitting Payment Proof (Raw JSON)...${NC}"
-FINAL_RES=$(curl -s -X POST "$URL?wallet=BeALNhc8tykF6wJBZWyXGEkb9Mfvk8JZk8miUL2JDuhw&spl-token=$MINT" \
+FINAL_RES=$(curl -s -G "$URL" \
+    --data-urlencode "wallet=$PAYER_PUBKEY" \
+    --data-urlencode "spl-token=$MINT" \
     -H "X-PAYMENT: $FINAL_PROOF")
 
-echo -e "${GREEN}Balance Check Successful!${NC}"
+echo -e "${BLUE}Raw Response:${NC}"
+echo "$FINAL_RES"
+echo -e "${GREEN}Balance Check Result:${NC}"
 echo "$FINAL_RES" | jq .

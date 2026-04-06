@@ -8,7 +8,7 @@ load_dotenv()
 async def main():
     rpc_url = os.getenv("SOLANA_RPC_URL", "https://api.devnet.solana.com")
     facilitator_url = "https://preview.agent.pay402.me"
-    keypair_path = "../buyer-keypair.json"
+    keypair_path = "../demo-wallets/buyer-keypair.json"
 
     client = X402Client(rpc_url, keypair_path, facilitator_url)
 
@@ -30,12 +30,13 @@ async def main():
     # --- Example 2: Checking SPL Balance ---
     try:
         print("\033[36m>>> DEMO 2: SPL TOKEN BALANCE VERIFICATION <<<\033[0m")
-        sol_mint = "11111111111111111111111111111111"
-        wallet_to_check = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        usdc_mint = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"
+        wallet_to_check = "buyA5hR1Z9KtHQRBTmLkjsFfjAabDwdZtrRC6edqxAJ"
         
         balance_res = await client.buy(
-            f"https://preview.spl-token.signer-payer.me/api/v1/check-balance?wallet={wallet_to_check}&spl-token={sol_mint}",
-            {}
+            f"https://preview.spl-token.signer-payer.me/api/v1/check-balance?wallet={wallet_to_check}&spl-token={usdc_mint}",
+            {},
+            "GET"
         )
         print("\033[32m[RESULT] Balance Checked!\033[0m")
         print(f"Token: {balance_res['token']}")

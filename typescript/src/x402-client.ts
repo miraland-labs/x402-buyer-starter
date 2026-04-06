@@ -33,15 +33,24 @@ export class X402Client {
     /**
      * The primary entry point. Hits a URL, handles 402, settles payment, and retries.
      */
-    async buy<T>(url: string, body: any): Promise<T> {
+    async buy<T>(url: string, body: any, method: 'GET' | 'POST' = 'POST'): Promise<T> {
         console.log(`\x1b[36m[X402] Attempting to access: ${url}\x1b[0m`);
 
         try {
+            const reqMethod = method.toUpperCase() as 'GET' | 'POST';
+
             // 1. Initial Attempt
-            const res = await axios.post(url, body, {
-                validateStatus: (status) => status === 200 || status === 402,
-                headers: { 'Content-Type': 'application/json' }
-            });
+            const res =
+                reqMethod === 'GET'
+                    ? await axios.get(url, {
+                          ...(body && Object.keys(body).length > 0 ? { params: body } : {}),
+                          validateStatus: (status) => status === 200 || status === 402,
+                          headers: { 'Content-Type': 'application/json' },
+                      })
+                    : await axios.post(url, body, {
+                          validateStatus: (status) => status === 200 || status === 402,
+                          headers: { 'Content-Type': 'application/json' },
+                      });
 
             if (res.status === 200) {
                 return res.data;
@@ -73,7 +82,8 @@ export class X402Client {
             const buildTxRes = await axios.post(`${facilitatorUrl}/api/v1/facilitator/build-exact-payment-tx`, {
                 payer: this.payer.publicKey.toBase58(),
                 accepted: accepted,
-                resource: requirements.resource
+                resource: requirements.resource,
+                buyerPaysTransactionFees: true
             });
 
             const buildData = buildTxRes.data;
@@ -96,12 +106,21 @@ export class X402Client {
 
             // 6. Authorized Retry
             console.log("\x1b[33m[X402] Final submission with payment proof (Raw JSON)...\x1b[0m");
-            const finalRes = await axios.post(url, body, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-PAYMENT': finalProof
-                }
-            });
+            const finalRes =
+                reqMethod === 'GET'
+                    ? await axios.get(url, {
+                          ...(body && Object.keys(body).length > 0 ? { params: body } : {}),
+                          headers: {
+                              'Content-Type': 'application/json',
+                              'X-PAYMENT': finalProof,
+                          },
+                      })
+                    : await axios.post(url, body, {
+                          headers: {
+                              'Content-Type': 'application/json',
+                              'X-PAYMENT': finalProof,
+                          },
+                      });
 
             return finalRes.data;
 

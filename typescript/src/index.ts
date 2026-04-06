@@ -12,7 +12,7 @@ dotenv.config();
 async function main() {
     const rpcUrl = process.env.SOLANA_RPC_URL || "https://api.devnet.solana.com";
     const facilitatorUrl = "https://preview.agent.pay402.me";
-    const keypairPath = "../buyer-keypair.json";
+    const keypairPath = "../demo-wallets/buyer-keypair.json";
 
     const client = new X402Client(rpcUrl, keypairPath, facilitatorUrl);
 
@@ -36,13 +36,13 @@ async function main() {
     // --- Example 2: Checking SPL Balance ---
     try {
         console.log("\x1b[36m>>> DEMO 2: SPL TOKEN BALANCE VERIFICATION <<<\x1b[0m");
-        // We'll check the balance of a common Devnet USDC-like mint or just Devnet SOL
-        const solMint = "11111111111111111111111111111111"; // SOL
-        const walletToCheck = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"; // Token Program as dummy wallet
+        const usdcMint = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"; // Devnet USDC
+        const walletToCheck = "buyA5hR1Z9KtHQRBTmLkjsFfjAabDwdZtrRC6edqxAJ"; // demo buyer wallet
 
         const balanceRes = await client.buy<any>(
-            `https://preview.spl-token.signer-payer.me/api/v1/check-balance?wallet=${walletToCheck}&spl-token=${solMint}`,
-            {} // GET request semantics but we use our buy wrapper
+            `https://preview.spl-token.signer-payer.me/api/v1/check-balance?wallet=${walletToCheck}&spl-token=${usdcMint}`,
+            {}, // GET request semantics
+            "GET"
         );
         console.log("\x1b[32m[RESULT] Balance Checked!\x1b[0m");
         console.log(`Token: ${balanceRes.token}`);

@@ -87,5 +87,15 @@ FINAL_RES=$(curl -s -X POST "$AETHERVANE_URL/api/v1/fortune" \
     -H "X-PAYMENT: $FINAL_PROOF" \
     -d '{ "query_type": "liuyao", "value": "8,7,9,7,8,6" }')
 
-echo -e "${GREEN}Divination Successful!${NC}"
-echo "$FINAL_RES" | jq .
+# Best Practice: Check both HTTP code and JSON body for nested errors
+IS_ERROR=$(echo "$FINAL_RES" | jq -r '.error // empty')
+
+if [ -n "$IS_ERROR" ]; then
+    echo -e "${RED}Divination Failed!${NC}"
+    echo -e "${RED}Reason: $IS_ERROR${NC}"
+    echo "$FINAL_RES" | jq .
+    exit 1
+else
+    echo -e "${GREEN}Divination Successful!${NC}"
+    echo "$FINAL_RES" | jq .
+fi
