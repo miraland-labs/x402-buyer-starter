@@ -1,0 +1,5 @@
+httpx
+solders
+solana
+base58
+python-dotenv
