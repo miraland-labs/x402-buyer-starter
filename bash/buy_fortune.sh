@@ -83,7 +83,7 @@ for INPUT_JSON in "${FORTUNE_INPUTS[@]}"; do
   echo -e "\n${GOLD}[5/5] Submitting Payment Proof (Raw JSON)...${NC}"
   FINAL_RES=$(curl -s -X POST "$AETHERVANE_URL/api/v1/fortune" \
       -H "Content-Type: application/json" \
-      -H "X-PAYMENT: $FINAL_PROOF" \
+      -H "PAYMENT-SIGNATURE: $FINAL_PROOF" \
       -d "$INPUT_JSON")
 
   IS_ERROR=$(echo "$FINAL_RES" | jq -r '.error // empty')

@@ -112,13 +112,13 @@ export class X402Client {
                           ...(body && Object.keys(body).length > 0 ? { params: body } : {}),
                           headers: {
                               'Content-Type': 'application/json',
-                              'X-PAYMENT': finalProof,
+                              'PAYMENT-SIGNATURE': finalProof,
                           },
                       })
                     : await axios.post(url, body, {
                           headers: {
                               'Content-Type': 'application/json',
-                              'X-PAYMENT': finalProof,
+                              'PAYMENT-SIGNATURE': finalProof,
                           },
                       });
 

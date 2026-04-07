@@ -71,7 +71,7 @@ echo -e "${GOLD}[5/5] Submitting Payment Proof (Raw JSON)...${NC}"
 FINAL_RES=$(curl -s -G "$URL" \
     --data-urlencode "wallet=$PAYER_PUBKEY" \
     --data-urlencode "spl-token=$MINT" \
-    -H "X-PAYMENT: $FINAL_PROOF")
+    -H "PAYMENT-SIGNATURE: $FINAL_PROOF")
 
 echo -e "${BLUE}Raw Response:${NC}"
 echo "$FINAL_RES"

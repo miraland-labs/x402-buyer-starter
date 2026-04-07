@@ -106,11 +106,11 @@ class X402Client:
             print("\033[33m[X402] Final submission with payment proof (Raw JSON)...\033[0m")
             if req_method == "GET":
                 if body and len(body.keys()) > 0:
-                    final_res = await client.get(url, params=body, headers={"X-PAYMENT": final_proof})
+                    final_res = await client.get(url, params=body, headers={"PAYMENT-SIGNATURE": final_proof})
                 else:
-                    final_res = await client.get(url, headers={"X-PAYMENT": final_proof})
+                    final_res = await client.get(url, headers={"PAYMENT-SIGNATURE": final_proof})
             else:
-                final_res = await client.post(url, json=body or {}, headers={"X-PAYMENT": final_proof})
+                final_res = await client.post(url, json=body or {}, headers={"PAYMENT-SIGNATURE": final_proof})
             
             if final_res.status_code != 200:
                 raise Exception(f"Final submission failed: {final_res.text}")
