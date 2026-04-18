@@ -7,7 +7,7 @@
 set -e
 
 # Configuration
-AETHERVANE_URL="https://preview.aethervane.signer-payer.me"
+AETHERVANE_URL="https://preview.aethervane.hashspace.me"
 BUYER_KEYPAIR="../demo-wallets/buyer-keypair.json"
 RPC_URL="https://api.devnet.solana.com"
 

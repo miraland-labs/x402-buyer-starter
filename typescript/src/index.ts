@@ -31,7 +31,7 @@ async function main() {
         for (const input of fortuneInputs) {
             console.log(`\x1b[33m[INPUT]\x1b[0m ${JSON.stringify(input)}`);
             const fortune = await client.buy<any>(
-                "https://preview.aethervane.signer-payer.me/api/v1/fortune",
+                "https://preview.aethervane.hashspace.me/api/v1/fortune",
                 input
             );
             console.log("\x1b[32m[RESULT] Divination Successful!\x1b[0m");

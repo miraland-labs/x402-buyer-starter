@@ -26,7 +26,7 @@ async def main():
         for request in fortune_inputs:
             print(f"\033[33m[INPUT]\033[0m {request}")
             fortune = await client.buy(
-                "https://preview.aethervane.signer-payer.me/api/v1/fortune",
+                "https://preview.aethervane.hashspace.me/api/v1/fortune",
                 request
             )
             print("\033[32m[RESULT] Divination Successful!\033[0m")

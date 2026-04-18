@@ -18,7 +18,7 @@ The core philosophy of this starter is to reduce the complexity of on-chain sett
 
 ```typescript
 // Example: AetherVane Fortune
-const fortune = await client.buy("https://preview.aethervane.signer-payer.me/api/v1/fortune", {
+const fortune = await client.buy("https://preview.aethervane.hashspace.me/api/v1/fortune", {
     query_type: "liuyao",
     value: "8,7,9,7,8,6"
 });
