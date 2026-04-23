@@ -4,6 +4,11 @@ const fs = require('fs');
 /**
  * Tiny helper to sign a Base64-encoded VersionedTransaction.
  * Usage: node sign.js <keypair_path> <base64_tx>
+ *
+ * Note: On Node 22+, you may see DEP0040 (punycode) from transitive dependencies
+ * of @solana/web3.js. It is harmless. The bash demos call:
+ *   node --no-deprecation sign.js ...
+ * to keep logs clean for new agents.
  */
 
 const keypairPath = process.argv[2];

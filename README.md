@@ -74,6 +74,20 @@ For `daily`, output is deterministic for the same UTC date, but expected to chan
 3.  **Facilitation**: Agents send the 402 requirements to the **Facilitator API** to receive an unsigned transaction shell.
 4.  **Local Signing**: The agent signs the transaction locally and sends the proof back to the service.
 
+### Preview facilitator (pr402)
+
+Live challenges often point at **capabilities** under a deployment such as:
+
+`https://preview.agent.pay402.me/api/v1/facilitator/capabilities`
+
+The bash scripts **do not hard-code** that host: they read `accepts[].extra.capabilitiesUrl` from the 402 payload and derive the facilitator base path from it.
+
+### Bash demos: success vs failure
+
+- Scripts use **`set -e`** and treat a JSON body with a top-level **`error`** field (verify/settle failure) as **failure** → **non-zero exit**, even when HTTP status is 200.
+- **`build-exact-payment-tx`** responses must include a non-empty **`transaction`**; otherwise the script exits with an error.
+- **`sign.js`**: if Node prints **DEP0040 (punycode)**, it comes from transitive deps; demos run `node --no-deprecation sign.js` to suppress that noise.
+
 ---
 Part of the **x402 Agentic Protocol** ecosystem.
 © 2026 Miraland Labs • Powering the Machine Economy.

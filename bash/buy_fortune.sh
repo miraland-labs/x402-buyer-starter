@@ -3,6 +3,9 @@
 # x402-buyer-starter: Bash Agent (Pure CLI Edition)
 # Simple is Best, yet Elegant!
 # USAGE: ./buy_fortune.sh
+#
+# Facilitator URL comes from the 402 challenge. Typical preview:
+#   https://preview.agent.pay402.me/api/v1/facilitator
 
 set -e
 
@@ -71,12 +74,32 @@ for INPUT_JSON in "${FORTUNE_INPUTS[@]}"; do
           \"resource\": $RESOURCE,
           \"buyerPaysTransactionFees\": true
       }")
-  UNSIGNED_TX_B64=$(echo "$BUILD_RES" | jq -r '.transaction')
+
+  if ! echo "$BUILD_RES" | jq -e . >/dev/null 2>&1; then
+      echo -e "${RED}Error: facilitator build response is not JSON${NC}"
+      echo "$BUILD_RES"
+      exit 1
+  fi
+
+  BUILD_ERR=$(echo "$BUILD_RES" | jq -r '.error // .message // empty')
+  if [ -n "$BUILD_ERR" ]; then
+      echo -e "${RED}Error: facilitator build-exact-payment-tx failed${NC}"
+      echo "$BUILD_RES" | jq .
+      exit 1
+  fi
+
+  UNSIGNED_TX_B64=$(echo "$BUILD_RES" | jq -r '.transaction // empty')
+  if [ -z "$UNSIGNED_TX_B64" ] || [ "$UNSIGNED_TX_B64" = "null" ]; then
+      echo -e "${RED}Error: facilitator response missing .transaction${NC}"
+      echo "$BUILD_RES" | jq .
+      exit 1
+  fi
+
   VERIFY_TEMPLATE=$(echo "$BUILD_RES" | jq -c '.verifyBodyTemplate')
 
   # Step 4: Local Signing (via tiny Node script)
   echo -e "${GOLD}[4/5] Signing transaction locally via Node.js...${NC}"
-  SIGNED_TX=$(node sign.js "$BUYER_KEYPAIR" "$UNSIGNED_TX_B64")
+  SIGNED_TX=$(node --no-deprecation sign.js "$BUYER_KEYPAIR" "$UNSIGNED_TX_B64")
   FINAL_PROOF=$(echo "$VERIFY_TEMPLATE" | jq -c --arg tx "$SIGNED_TX" '.paymentPayload.payload.transaction = $tx')
 
   # Step 5: Settle & Submit
@@ -86,14 +109,18 @@ for INPUT_JSON in "${FORTUNE_INPUTS[@]}"; do
       -H "PAYMENT-SIGNATURE: $FINAL_PROOF" \
       -d "$INPUT_JSON")
 
-  IS_ERROR=$(echo "$FINAL_RES" | jq -r '.error // empty')
-  if [ -n "$IS_ERROR" ]; then
-      echo -e "${RED}Divination Failed!${NC}"
-      echo -e "${RED}Reason: $IS_ERROR${NC}"
+  if ! echo "$FINAL_RES" | jq -e . >/dev/null 2>&1; then
+      echo -e "${RED}Error: service response is not JSON${NC}"
+      echo "$FINAL_RES"
+      exit 1
+  fi
+
+  if echo "$FINAL_RES" | jq -e 'has("error") and .error != null' >/dev/null 2>&1; then
+      echo -e "${RED}Divination Failed (see .error in body).${NC}"
       echo "$FINAL_RES" | jq .
       exit 1
-  else
-      echo -e "${GREEN}Divination Successful!${NC}"
-      echo "$FINAL_RES" | jq .
   fi
+
+  echo -e "${GREEN}Divination Successful!${NC}"
+  echo "$FINAL_RES" | jq .
 done
