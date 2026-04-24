@@ -71,8 +71,7 @@ for INPUT_JSON in "${FORTUNE_INPUTS[@]}"; do
       -d "{
           \"payer\": \"$PAYER_PUBKEY\",
           \"accepted\": $ACCEPT_LINE,
-          \"resource\": $RESOURCE,
-          \"buyerPaysTransactionFees\": true
+          \"resource\": $RESOURCE
       }")
 
   if ! echo "$BUILD_RES" | jq -e . >/dev/null 2>&1; then

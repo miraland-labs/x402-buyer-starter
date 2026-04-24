@@ -59,11 +59,11 @@ class X402Client:
             facilitator_url = accepted.get('extra', {}).get('capabilitiesUrl', self.default_facilitator)
             facilitator_url = facilitator_url.replace('/api/v1/facilitator/capabilities', '')
 
+            # pr402 build-exact: facilitator pays Solana fees; buyer signs at payerSignatureIndex.
             build_req = {
                 "payer": str(self.payer.pubkey()),
                 "accepted": accepted,
                 "resource": requirements.get('resource'),
-                "buyerPaysTransactionFees": True
             }
 
             build_res = await client.post(f"{facilitator_url}/api/v1/facilitator/build-exact-payment-tx", json=build_req)

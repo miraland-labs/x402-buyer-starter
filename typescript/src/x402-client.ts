@@ -79,16 +79,20 @@ export class X402Client {
             const facilitatorUrl = (accepted.extra?.capabilitiesUrl || this.defaultFacilitator)
                 .replace(/\/api\/v1\/facilitator\/capabilities$/, '');
 
+            // pr402 `build-exact-payment-tx`: facilitator is fee payer; buyer signs at `payerSignatureIndex`.
+            // Do not send legacy `buyerPaysTransactionFees` (ignored / wrong rail).
             const buildTxRes = await axios.post(`${facilitatorUrl}/api/v1/facilitator/build-exact-payment-tx`, {
                 payer: this.payer.publicKey.toBase58(),
                 accepted: accepted,
                 resource: requirements.resource,
-                buyerPaysTransactionFees: true
             });
 
             const buildData = buildTxRes.data;
 
             // 4. Cryptographic Local Signing
+            // pr402 `exact`: fee payer is usually the facilitator (static key 0); buyer is at
+            // `payerSignatureIndex` in the JSON. `@solana/web3.js` VersionedTransaction.sign() only
+            // fills signature slots for the keypairs you pass (it does not require the fee payer).
             console.log("\x1b[33m[X402] signing transaction locally...\x1b[0m");
             const txBytes = Buffer.from(buildData.transaction, 'base64');
             const vtx = VersionedTransaction.deserialize(txBytes);

@@ -56,8 +56,7 @@ BUILD_RES=$(curl -s -X POST "$FACILITATOR/api/v1/facilitator/build-exact-payment
     -d "{
         \"payer\": \"$PAYER_PUBKEY\",
         \"accepted\": $ACCEPT_LINE,
-        \"resource\": $RESOURCE,
-        \"buyerPaysTransactionFees\": true
+        \"resource\": $RESOURCE
     }")
 
 if ! echo "$BUILD_RES" | jq -e . >/dev/null 2>&1; then

@@ -71,7 +71,7 @@ For `daily`, output is deterministic for the same UTC date, but expected to chan
 
 1.  **The 402 Challenge**: Any unpaid request to an X402-protected URL returns `HTTP 402 Payment Required`.
 2.  **Discovery**: The `Payment-Required` header contains the metadata needed to pay: `payTo`, `amount`, and `capabilitiesUrl` (the Facilitator).
-3.  **Facilitation**: Agents send the 402 requirements to the **Facilitator API** to receive an unsigned transaction shell.
+3.  **Facilitation**: Agents send the 402 requirements to the **Facilitator API** to receive an unsigned transaction shell (e.g. **`POST .../build-exact-payment-tx`** for the `exact` rail). Request body is **`payer`**, **`accepted`**, **`resource`** (optional **`skipSourceBalanceCheck`**, **`autoWrapSol`**). Do **not** send legacy **`buyerPaysTransactionFees`** on build-exact — pr402 uses facilitator-paid Solana fees for that rail; sign at **`payerSignatureIndex`** from the response.
 4.  **Local Signing**: The agent signs the transaction locally and sends the proof back to the service.
 
 ### Preview facilitator (pr402)
@@ -81,6 +81,12 @@ Live challenges often point at **capabilities** under a deployment such as:
 `https://preview.agent.pay402.me/api/v1/facilitator/capabilities`
 
 The bash scripts **do not hard-code** that host: they read `accepts[].extra.capabilitiesUrl` from the 402 payload and derive the facilitator base path from it.
+
+**Same-origin docs (alignment with current pr402):**
+
+- **`/agent-integration.md`** — human runbook (golden path, `payTo`, allowlist).
+- **`/agent-payTo-semantics.json`** — machine-readable `payTo` + **`paymentMintAllowlist`** (also linked as **`agentManifest.payToSemantics`** inside **`/capabilities`**).
+- If **`POST .../build-exact-payment-tx`** returns **400** with “not supported … Approved assets”, the facilitator’s **`PR402_ALLOWED_PAYMENT_MINTS`** excludes the mint in your **`accepted.asset`** — pick an allowlisted rail or ask the seller to fix **`accepts[]`**.
 
 ### Bash demos: success vs failure
 
