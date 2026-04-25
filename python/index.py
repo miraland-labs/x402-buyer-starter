@@ -24,11 +24,18 @@ async def main():
             {"query_type": "daily"},
         ]
         for request in fortune_inputs:
-            print(f"\033[33m[INPUT]\033[0m {request}")
-            fortune = await client.buy(
+            import time
+            import random
+            wrapped_request = {
+                "request_id": f"demo-python-{int(time.time())}-{random.randint(1000, 9999)}",
+                "fortune": request
+            }
+            print(f"\033[33m[INPUT]\033[0m {wrapped_request}")
+            fortune_res = await client.buy(
                 "https://preview.aethervane.hashspace.me/api/v1/fortune",
-                request
+                wrapped_request
             )
+            fortune = fortune_res.get("fortune", fortune_res)
             print("\033[32m[RESULT] Divination Successful!\033[0m")
             print(f"Luck Level: {fortune['luck_level']}/5 ({fortune['luck_enum']})")
             print(f"Engine: {fortune['engine']}")

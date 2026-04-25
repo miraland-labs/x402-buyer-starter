@@ -12,7 +12,7 @@ dotenv.config();
 async function main() {
     const rpcUrl = process.env.SOLANA_RPC_URL || "https://api.devnet.solana.com";
     const facilitatorUrl = "https://preview.agent.pay402.me";
-    const keypairPath = "../demo-wallets/buyer-keypair.json";
+    const keypairPath = "../../demo-wallets/buyer-keypair.json";
 
     const client = new X402Client(rpcUrl, keypairPath, facilitatorUrl);
 
@@ -29,11 +29,16 @@ async function main() {
         ];
 
         for (const input of fortuneInputs) {
-            console.log(`\x1b[33m[INPUT]\x1b[0m ${JSON.stringify(input)}`);
-            const fortune = await client.buy<any>(
+            const wrappedInput = {
+                request_id: `demo-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+                fortune: input
+            };
+            console.log(`\x1b[33m[INPUT]\x1b[0m ${JSON.stringify(wrappedInput)}`);
+            const fortuneRes = await client.buy<any>(
                 "https://preview.aethervane.hashspace.me/api/v1/fortune",
-                input
+                wrappedInput
             );
+            const fortune = fortuneRes.fortune; // unpack from ReadingSessionResponse
             console.log("\x1b[32m[RESULT] Divination Successful!\x1b[0m");
             console.log(`Luck Level: ${fortune.luck_level}/5 (${fortune.luck_enum})`);
             console.log(`Engine: ${fortune.engine}`);

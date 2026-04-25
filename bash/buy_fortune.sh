@@ -25,10 +25,10 @@ echo -e "${BLUE}--- X402 BASH BUYER AGENT ---${NC}"
 echo -e "Target: AetherVane Agentic Fortune Teller\n"
 
 FORTUNE_INPUTS=(
-  '{"query_type":"liuyao","value":"8,7,9,7,8,6"}'
-  '{"query_type":"number","value":"386"}'
-  '{"query_type":"name","value":"Satoshi Nakamoto"}'
-  '{"query_type":"daily"}'
+  "{\"request_id\":\"demo-bash-$(date +%s)-1\",\"fortune\":{\"query_type\":\"liuyao\",\"value\":\"8,7,9,7,8,6\"}}"
+  "{\"request_id\":\"demo-bash-$(date +%s)-2\",\"fortune\":{\"query_type\":\"number\",\"value\":\"386\"}}"
+  "{\"request_id\":\"demo-bash-$(date +%s)-3\",\"fortune\":{\"query_type\":\"name\",\"value\":\"Satoshi Nakamoto\"}}"
+  "{\"request_id\":\"demo-bash-$(date +%s)-4\",\"fortune\":{\"query_type\":\"daily\"}}"
 )
 
 for INPUT_JSON in "${FORTUNE_INPUTS[@]}"; do
