@@ -1,7 +1,9 @@
-/target
-demo-wallets
-buyer-keypair.json
+# Local secrets
 .env
-**/*.rs.bk
-.venv-buyer/
+.env.*
+
 node_modules/
+**/node_modules/
+dist/
+*.log
+/target
