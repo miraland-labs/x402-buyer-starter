@@ -71,7 +71,7 @@ For `daily`, output is deterministic for the same UTC date, but expected to chan
 
 1.  **The 402 Challenge**: Any unpaid request to an X402-protected URL returns `HTTP 402 Payment Required`.
 2.  **Discovery**: The `Payment-Required` header contains the metadata needed to pay: `payTo`, `amount`, and `capabilitiesUrl` (the Facilitator).
-3.  **Facilitation**: Agents send the 402 requirements to the **Facilitator API** to receive an unsigned transaction shell (e.g. **`POST .../build-exact-payment-tx`** for the `exact` rail). Request body is **`payer`**, **`accepted`**, **`resource`** (optional **`skipSourceBalanceCheck`**, **`autoWrapSol`**). Do **not** send legacy **`buyerPaysTransactionFees`** on build-exact — pr402 uses facilitator-paid Solana fees for that rail; sign at **`payerSignatureIndex`** from the response.
+3.  **Facilitation**: Agents send the 402 requirements to the **Facilitator API** to receive an unsigned transaction shell (e.g. **`POST .../build-exact-payment-tx`** for the `exact` rail). Request body is **`payer`**, **`accepted`**, **`resource`** (optional **`skipSourceBalanceCheck`**, **`autoWrapSol`**). Do **not** send legacy **`buyerPaysTransactionFees`** on build-exact — pr402 uses facilitator-paid Solana fees for that rail; sign at **`payerSignatureIndex`** from the response. **`accepted.scheme`** may be **`exact`** or **`v2:solana:exact`**; the facilitator’s **`verifyBodyTemplate`** normalizes to **`exact`** for **`/verify`** / **`/settle`** bodies.
 4.  **Local Signing**: The agent signs the transaction locally and sends the proof back to the service.
 
 ### Preview facilitator (pr402)
