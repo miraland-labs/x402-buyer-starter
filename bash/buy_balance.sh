@@ -14,6 +14,8 @@ set -e
 URL="https://preview.spl-token.signer-payer.me/api/v1/check-balance"
 BUYER_KEYPAIR="../demo-wallets/buyer-keypair.json"
 MINT="4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU" # DEVNET USDC
+DEFAULT_PR402="${PR402_FACILITATOR_URL:-https://preview.agent.pay402.me}"
+DEFAULT_PR402="${DEFAULT_PR402%/}"
 
 # Visuals
 GOLD='\033[0;33m'
@@ -45,8 +47,14 @@ echo -e "${GOLD}[2/5] Parsing X402 Challenge...${NC}"
 DECODED_HDR=$(echo "$RAW_HDR" | base64 -d)
 ACCEPT_LINE=$(echo "$DECODED_HDR" | jq -c '.accepts[] | select(.scheme == "exact" or .scheme == "v2:solana:exact")' | head -n 1)
 
-FACILITATOR=$(echo "$ACCEPT_LINE" | jq -r '.extra.capabilitiesUrl' | sed 's|/api/v1/facilitator/capabilities||')
+CAP_URL=$(echo "$ACCEPT_LINE" | jq -r '.extra.capabilitiesUrl // empty')
+if [ -z "$CAP_URL" ] || [ "$CAP_URL" = "null" ]; then
+  FACILITATOR="$DEFAULT_PR402"
+else
+  FACILITATOR=$(echo "$CAP_URL" | sed 's|/api/v1/facilitator/capabilities||')
+fi
 RESOURCE=$(echo "$DECODED_HDR" | jq -c '.resource')
+BUILD_ACCEPT=$(echo "$ACCEPT_LINE" | jq -c 'if .scheme == "v2:solana:exact" then . + {"scheme":"exact"} else . end')
 
 # Step 3: Build
 echo -e "${GOLD}[3/5] Building Payment Transaction...${NC}"
@@ -55,7 +63,7 @@ BUILD_RES=$(curl -s -X POST "$FACILITATOR/api/v1/facilitator/build-exact-payment
     -H "Content-Type: application/json" \
     -d "{
         \"payer\": \"$PAYER_PUBKEY\",
-        \"accepted\": $ACCEPT_LINE,
+        \"accepted\": $BUILD_ACCEPT,
         \"resource\": $RESOURCE
     }")
 

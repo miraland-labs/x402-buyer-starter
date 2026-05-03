@@ -13,6 +13,9 @@ set -e
 AETHERVANE_URL="https://preview.aethervane.hashspace.me"
 BUYER_KEYPAIR="../demo-wallets/buyer-keypair.json"
 RPC_URL="https://api.devnet.solana.com"
+# Fallback when accepts[].extra.capabilitiesUrl is missing (preview devnet by default).
+DEFAULT_PR402="${PR402_FACILITATOR_URL:-https://preview.agent.pay402.me}"
+DEFAULT_PR402="${DEFAULT_PR402%/}"
 
 # Visuals
 GOLD='\033[0;33m'
@@ -57,8 +60,15 @@ for INPUT_JSON in "${FORTUNE_INPUTS[@]}"; do
   ACCEPT_LINE=$(echo "$DECODED_HDR" | jq -c '.accepts[] | select(.scheme == "exact" or .scheme == "v2:solana:exact")' | head -n 1)
   MINT=$(echo "$ACCEPT_LINE" | jq -r '.asset')
   AMOUNT=$(echo "$ACCEPT_LINE" | jq -r '.amount')
-  FACILITATOR=$(echo "$ACCEPT_LINE" | jq -r '.extra.capabilitiesUrl' | sed 's|/api/v1/facilitator/capabilities||')
+  CAP_URL=$(echo "$ACCEPT_LINE" | jq -r '.extra.capabilitiesUrl // empty')
+  if [ -z "$CAP_URL" ] || [ "$CAP_URL" = "null" ]; then
+    FACILITATOR="$DEFAULT_PR402"
+  else
+    FACILITATOR=$(echo "$CAP_URL" | sed 's|/api/v1/facilitator/capabilities||')
+  fi
   RESOURCE=$(echo "$DECODED_HDR" | jq -c '.resource')
+  # pr402 build accepts v2:solana:exact alias; canonical request uses wire `exact`.
+  BUILD_ACCEPT=$(echo "$ACCEPT_LINE" | jq -c 'if .scheme == "v2:solana:exact" then . + {"scheme":"exact"} else . end')
   echo -e "  Asset: $MINT"
   echo -e "  Amount: $AMOUNT units"
   echo -e "  Facilitator: $FACILITATOR"
@@ -70,7 +80,7 @@ for INPUT_JSON in "${FORTUNE_INPUTS[@]}"; do
       -H "Content-Type: application/json" \
       -d "{
           \"payer\": \"$PAYER_PUBKEY\",
-          \"accepted\": $ACCEPT_LINE,
+          \"accepted\": $BUILD_ACCEPT,
           \"resource\": $RESOURCE
       }")
 

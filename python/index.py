@@ -2,12 +2,15 @@ import asyncio
 import os
 from x402_client import X402Client
 from dotenv import load_dotenv
+from pr402_defaults import PR402_FACILITATOR_URL_PREVIEW
 
 load_dotenv()
 
 async def main():
     rpc_url = os.getenv("SOLANA_RPC_URL", "https://api.devnet.solana.com")
-    facilitator_url = "https://preview.agent.pay402.me"
+    facilitator_url = os.getenv(
+        "PR402_FACILITATOR_URL", PR402_FACILITATOR_URL_PREVIEW
+    )
     keypair_path = "../demo-wallets/buyer-keypair.json"
 
     client = X402Client(rpc_url, keypair_path, facilitator_url)

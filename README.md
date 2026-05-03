@@ -2,56 +2,103 @@
 
 **Simple is Best, Yet Elegant!**
 
-A high-fidelity starter project for **Buyer Agents** (MCP, OpenClaw, AutoGPT) in the X402 ecosystem. This project demonstrates how to programmatically discover, pay for, and consume professional services on Solana Devnet.
+A high-fidelity starter project for **Buyer Agents** (MCP, OpenClaw, AutoGPT) in the X402 ecosystem. This project demonstrates how to programmatically discover, pay for, and consume professional services on Solana (Devnet in the bundled demos; use production facilitator URLs for Mainnet).
 
 ## 📁 Languages
 
 | Language | Path | Best For... |
 | :--- | :--- | :--- |
 | **Bash** | `bash/` | DevOps, CLI tools, minimalists. |
-| **TypeScript** | `typescript/` | Web agents, high-fidelity SDKs. |
+| **TypeScript** | `typescript/` | Web agents, fetch wrapper, reusable SDK entrypoints. |
 | **Python** | `python/` | AI Agents, LLM-driven loops. |
+
+## pr402 facilitator URLs
+
+| Environment | Base URL |
+|-------------|----------|
+| **Production** (Solana Mainnet) | `https://agent.pay402.me` |
+| **Preview** (Solana Devnet) | `https://preview.agent.pay402.me` |
+
+Set **`PR402_FACILITATOR_URL`** (Bash, TypeScript via `.env`, Python via `.env`) to override the default preview URL when you work against Mainnet or a self-hosted pr402 fork.
 
 ## 🚀 One-Line Acquisition
 
-The core philosophy of this starter is to reduce the complexity of on-chain settlement to a single function call:
+The `X402Client` entry point wraps HTTP + 402 handling + local signing:
 
 ```typescript
-// Example: AetherVane Fortune
 const fortune = await client.buy("https://preview.aethervane.hashspace.me/api/v1/fortune", {
     query_type: "liuyao",
     value: "8,7,9,7,8,6"
 });
 ```
 
+### One-click `fetch` wrapper (TypeScript)
+
+For agents that already use `fetch`, **`createPay402Fetch`** retries once with a **`PAYMENT-SIGNATURE`** after a **402** + **`Payment-Required`** header:
+
+```typescript
+import { createPay402Fetch, PR402_FACILITATOR_URL_PREVIEW } from './index';
+import { Keypair } from '@solana/web3.js';
+import * as fs from 'fs';
+
+const payer = Keypair.fromSecretKey(
+  Uint8Array.from(JSON.parse(fs.readFileSync('demo-wallets/buyer-keypair.json', 'utf-8')))
+);
+const payFetch = createPay402Fetch(fetch, {
+  payer,
+  defaultFacilitatorBaseUrl: process.env.PR402_FACILITATOR_URL ?? PR402_FACILITATOR_URL_PREVIEW,
+});
+
+const res = await payFetch('https://preview.aethervane.hashspace.me/api/v1/fortune', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ request_id: 'r1', fortune: { query_type: 'daily' } }),
+});
+const json = await res.json();
+```
+
+Import paths when developing **inside this repo**: `import { … } from './src/index'` or compile from `dist/`. **Requires Node 18+** (global `fetch`) or provide a compatible `fetch` as the first argument.
+
 ## 🛠️ Usage
 
 ### 1. Setup Your identity
+
 Copy your Solana keypair (JSON) to `demo-wallets/buyer-keypair.json`.
+
 > Note: For the preview, a demo wallet is already provided at `demo-wallets/buyer-keypair.json`.
 
 ### 2. Run the Demos
 
 #### Bash
+
 ```bash
 cd bash
 npm install
 ./buy_fortune.sh
 ```
 
+Optional: `export PR402_FACILITATOR_URL=https://agent.pay402.me` for mainnet.
+
 #### TypeScript
+
 ```bash
 cd typescript
 npm install
-npm start
+npm start   # runs src/run-demos.ts (X402Client + createPay402Fetch smoke test)
+npm run build  # emits dist/ + .d.ts for SDK-style imports
 ```
 
+Optional `.env`: `PR402_FACILITATOR_URL`, `SOLANA_RPC_URL` (reserved / future use).
+
 #### Python
+
 ```bash
 cd python
 pip install -r requirements.txt
 python index.py
 ```
+
+Use `PR402_FACILITATOR_URL` in `.env` for Mainnet.
 
 ## 🧪 Fortune Category Test Vectors
 
@@ -69,28 +116,33 @@ For `daily`, output is deterministic for the same UTC date, but expected to chan
 
 ## 🔍 Key Concepts for Agents
 
-1.  **The 402 Challenge**: Any unpaid request to an X402-protected URL returns `HTTP 402 Payment Required`.
-2.  **Discovery**: The `Payment-Required` header contains the metadata needed to pay: `payTo`, `amount`, and `capabilitiesUrl` (the Facilitator).
-3.  **Facilitation**: Agents send the 402 requirements to the **Facilitator API** to receive an unsigned transaction shell (e.g. **`POST .../build-exact-payment-tx`** for the `exact` rail). Request body is **`payer`**, **`accepted`**, **`resource`** (optional **`skipSourceBalanceCheck`**, **`autoWrapSol`**). Do **not** send legacy **`buyerPaysTransactionFees`** on build-exact — pr402 uses facilitator-paid Solana fees for that rail; sign at **`payerSignatureIndex`** from the response. **`accepted.scheme`** may be **`exact`** or **`v2:solana:exact`**; the facilitator’s **`verifyBodyTemplate`** normalizes to **`exact`** for **`/verify`** / **`/settle`** bodies.
-4.  **Local Signing**: The agent signs the transaction locally and sends the proof back to the service.
+1. **The 402 Challenge**: Any unpaid request to an X402-protected URL returns `HTTP 402 Payment Required`.
+2. **Discovery**: The `Payment-Required` header contains the metadata needed to pay: `payTo`, `amount`, and often `capabilitiesUrl` for the facilitator’s **`/api/v1/facilitator/capabilities`**.
+3. **Facilitation**: Buyers call **`POST …/build-exact-payment-tx`** on pr402 with **`payer`**, **`accepted`**, **`resource`** (optional **`skipSourceBalanceCheck`**, **`autoWrapSol`**). Do **not** send legacy **`buyerPaysTransactionFees`** on this rail — pr402 sponsors Solana fees for **exact**; sign at **`payerSignatureIndex`**.
+
+### Scheme: `exact` vs `v2:solana:exact`
+
+Sellers often publish **`v2:solana:exact`** in **`accepts[]`** (alias for the UniversalSettle rail). pr402 accepts **either** alias on **`build-exact-payment-tx`**, but the **canonical** request form is wire **`exact`**. This starter normalizes **`v2:solana:exact` → `exact`** on the build request so it matches current pr402 OpenAPI guidance; **`verifyBodyTemplate`** from pr402 already uses **`exact`** everywhere.
+
+4. **Local Signing**: The agent signs the transaction locally and sends the proof back to the resource with **`PAYMENT-SIGNATURE`**.
 
 ### Preview facilitator (pr402)
 
-Live challenges often point at **capabilities** under a deployment such as:
+Live challenges often point at **capabilities** under:
 
 `https://preview.agent.pay402.me/api/v1/facilitator/capabilities`
 
-The bash scripts **do not hard-code** that host: they read `accepts[].extra.capabilitiesUrl` from the 402 payload and derive the facilitator base path from it.
+Bash scripts read `accepts[].extra.capabilitiesUrl` when present; otherwise they fall back to **`PR402_FACILITATOR_URL`** or the preview default.
 
-**Same-origin docs (alignment with current pr402):**
+**Same-origin docs (alignment with pr402):**
 
-- **`/agent-integration.md`** — human runbook (golden path, `payTo`, allowlist).
-- **`/agent-payTo-semantics.json`** — machine-readable `payTo` + **`paymentMintAllowlist`** (also linked as **`agentManifest.payToSemantics`** inside **`/capabilities`**).
-- If **`POST .../build-exact-payment-tx`** returns **400** with “not supported … Approved assets”, the facilitator’s **`PR402_ALLOWED_PAYMENT_MINTS`** excludes the mint in your **`accepted.asset`** — pick an allowlisted rail or ask the seller to fix **`accepts[]`**.
+- **`/agent-integration.md`** — human runbook.
+- **`/agent-payTo-semantics.json`** — machine-readable `payTo` + **`paymentMintAllowlist`**.
+- If **`POST …/build-exact-payment-tx`** returns **400** with “not supported … Approved assets”, the facilitator’s mint allowlist excludes your **`accepted.asset`** — pick an allowlisted rail or ask the seller to fix **`accepts[]`**.
 
 ### Bash demos: success vs failure
 
-- Scripts use **`set -e`** and treat a JSON body with a top-level **`error`** field (verify/settle failure) as **failure** → **non-zero exit**, even when HTTP status is 200.
+- Scripts use **`set -e`** and treat a JSON body with a top-level **`error`** field as **failure** → **non-zero exit**, even when HTTP status is 200.
 - **`build-exact-payment-tx`** responses must include a non-empty **`transaction`**; otherwise the script exits with an error.
 - **`sign.js`**: if Node prints **DEP0040 (punycode)**, it comes from transitive deps; demos run `node --no-deprecation sign.js` to suppress that noise.
 

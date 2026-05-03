@@ -1,10 +1,11 @@
 {
   "name": "x402-buyer-typescript",
-  "version": "1.0.0",
-  "description": "Premium TypeScript Agentic Buyer for X402",
+  "version": "1.1.0",
+  "description": "Premium TypeScript Agentic Buyer for X402 + pr402 one-click fetch wrapper",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "start": "ts-node src/run-demos.ts",
     "build": "tsc"
   },
   "dependencies": {

@@ -1,71 +1,20 @@
-import { X402Client } from './x402-client';
-import * as dotenv from 'dotenv';
-
-dotenv.config();
-
 /**
- * X402 Buyer Starter Index: Demonstrates high-fidelity acquisition of paid services.
- * 1. AetherVane Agentic Fortune Teller
- * 2. SPL-Token Balance Check
+ * @miraland-labs x402 buyer utilities for pr402 (`exact` rail).
  */
 
-async function main() {
-    const rpcUrl = process.env.SOLANA_RPC_URL || "https://api.devnet.solana.com";
-    const facilitatorUrl = "https://preview.agent.pay402.me";
-    const keypairPath = "../../demo-wallets/buyer-keypair.json";
+export {
+    PR402_FACILITATOR_URL_PREVIEW,
+    PR402_FACILITATOR_URL_PRODUCTION,
+    canonicalAcceptedForBuild,
+    facilitatorBaseUrl,
+    isExactRailScheme,
+    pickExactAcceptLine,
+} from './pr402-defaults';
 
-    const client = new X402Client(rpcUrl, keypairPath, facilitatorUrl);
+export { buildExactPaymentProofJsonString } from './pr402-exact-flow';
+export type { PaymentRequiredBody } from './pr402-exact-flow';
 
-    console.log("\x1b[32m=== X402 BUYER STARTER: AGENTIC ACQUISITION ===\x1b[0m\n");
+export { createPay402Fetch } from './fetch-with-payment';
+export type { CreatePay402FetchOptions } from './fetch-with-payment';
 
-    // --- Example 1: Buying Fortunes (all categories) ---
-    try {
-        console.log("\x1b[36m>>> DEMO 1: AETHERVANE DIVINATION (ALL CATEGORIES) <<<\x1b[0m");
-        const fortuneInputs = [
-            { query_type: "liuyao", value: "8,7,9,7,8,6" },
-            { query_type: "number", value: "386" },
-            { query_type: "name", value: "Satoshi Nakamoto" },
-            { query_type: "daily" },
-        ];
-
-        for (const input of fortuneInputs) {
-            const wrappedInput = {
-                request_id: `demo-${Date.now()}-${Math.random().toString(36).substring(7)}`,
-                fortune: input
-            };
-            console.log(`\x1b[33m[INPUT]\x1b[0m ${JSON.stringify(wrappedInput)}`);
-            const fortuneRes = await client.buy<any>(
-                "https://preview.aethervane.hashspace.me/api/v1/fortune",
-                wrappedInput
-            );
-            const fortune = fortuneRes.fortune; // unpack from ReadingSessionResponse
-            console.log("\x1b[32m[RESULT] Divination Successful!\x1b[0m");
-            console.log(`Luck Level: ${fortune.luck_level}/5 (${fortune.luck_enum})`);
-            console.log(`Engine: ${fortune.engine}`);
-            console.log(`Reading: ${fortune.description}\n`);
-        }
-    } catch (e) {
-        console.error("Demo 1 Failed.");
-    }
-
-    // --- Example 2: Checking SPL Balance ---
-    try {
-        console.log("\x1b[36m>>> DEMO 2: SPL TOKEN BALANCE VERIFICATION <<<\x1b[0m");
-        const usdcMint = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"; // Devnet USDC
-        const walletToCheck = "buyA5hR1Z9KtHQRBTmLkjsFfjAabDwdZtrRC6edqxAJ"; // demo buyer wallet
-
-        const balanceRes = await client.buy<any>(
-            `https://preview.spl-token.signer-payer.me/api/v1/check-balance?wallet=${walletToCheck}&spl-token=${usdcMint}`,
-            {}, // GET request semantics
-            "GET"
-        );
-        console.log("\x1b[32m[RESULT] Balance Checked!\x1b[0m");
-        console.log(`Token: ${balanceRes.token}`);
-        console.log(`Balance UI: ${balanceRes.balance_ui}`);
-        console.log(`Verified: ${balanceRes.balance_met ? 'YES' : 'NO'}\n`);
-    } catch (e) {
-        console.error("Demo 2 Failed.");
-    }
-}
-
-main().catch(console.error);
+export { X402Client } from './x402-client';
