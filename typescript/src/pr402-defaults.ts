@@ -1,8 +1,8 @@
-/** Production pr402 facilitator (Solana Mainnet). */
-export const PR402_FACILITATOR_URL_PRODUCTION = 'https://agent.pay402.me';
+/** Production pr402 facilitator (Solana Mainnet). Same APIs at `https://agent.pay402.me` (not deprecated). */
+export const PR402_FACILITATOR_URL_PRODUCTION = 'https://ipay.sh';
 
-/** Preview pr402 facilitator (Solana Devnet). */
-export const PR402_FACILITATOR_URL_PREVIEW = 'https://preview.agent.pay402.me';
+/** Preview pr402 facilitator (Solana Devnet). Same APIs at `https://preview.agent.pay402.me` (not deprecated). */
+export const PR402_FACILITATOR_URL_PREVIEW = 'https://preview.ipay.sh';
 
 const CAPABILITIES_SUFFIX = /\/api\/v1\/facilitator\/capabilities\/?$/;
 

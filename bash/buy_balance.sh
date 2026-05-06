@@ -5,8 +5,8 @@
 # USAGE: ./buy_balance.sh
 #
 # The facilitator URL is taken from the 402 challenge (`accepts[].extra.capabilitiesUrl`).
-# Typical preview deployment: https://preview.agent.pay402.me/api/v1/facilitator
-# (capabilities URL adds `/capabilities`).
+# Typical preview deployment: https://preview.ipay.sh/api/v1/facilitator
+# (same APIs as preview.agent.pay402.me; capabilities URL adds `/capabilities`).
 
 set -e
 
@@ -14,7 +14,7 @@ set -e
 URL="https://preview.spl-token.signer-payer.me/api/v1/check-balance"
 BUYER_KEYPAIR="../demo-wallets/buyer-keypair.json"
 MINT="4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU" # DEVNET USDC
-DEFAULT_PR402="${PR402_FACILITATOR_URL:-https://preview.agent.pay402.me}"
+DEFAULT_PR402="${PR402_FACILITATOR_URL:-https://preview.ipay.sh}"
 DEFAULT_PR402="${DEFAULT_PR402%/}"
 
 # Visuals

@@ -1,5 +1,5 @@
-PR402_FACILITATOR_URL_PRODUCTION = "https://agent.pay402.me"
-PR402_FACILITATOR_URL_PREVIEW = "https://preview.agent.pay402.me"
+PR402_FACILITATOR_URL_PRODUCTION = "https://ipay.sh"
+PR402_FACILITATOR_URL_PREVIEW = "https://preview.ipay.sh"
 
 
 def facilitator_base_url(capabilities_url: str | None, fallback_base_url: str) -> str:

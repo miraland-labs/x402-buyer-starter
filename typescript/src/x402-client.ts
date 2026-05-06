@@ -15,7 +15,7 @@ export class X402Client {
     /**
      * @param _rpcUrl Reserved for future RPC / balance helpers (optional).
      * @param keypairPath Path to `buyer-keypair.json`
-     * @param defaultFacilitatorBaseUrl pr402 origin, e.g. `https://preview.agent.pay402.me`
+     * @param defaultFacilitatorBaseUrl pr402 origin, e.g. `https://preview.ipay.sh` (same APIs at `https://preview.agent.pay402.me`)
      */
     constructor(_rpcUrl: string, keypairPath: string, defaultFacilitatorBaseUrl: string) {
         const secretKey = Uint8Array.from(JSON.parse(fs.readFileSync(keypairPath, 'utf-8')));

@@ -4,8 +4,8 @@
 # Simple is Best, yet Elegant!
 # USAGE: ./buy_fortune.sh
 #
-# Facilitator URL comes from the 402 challenge. Typical preview:
-#   https://preview.agent.pay402.me/api/v1/facilitator
+# Facilitator URL comes from the 402 challenge. Recommended preview host:
+#   https://preview.ipay.sh/api/v1/facilitator (same service as preview.agent.pay402.me)
 
 set -e
 
@@ -14,7 +14,7 @@ AETHERVANE_URL="https://preview.aethervane.hashspace.me"
 BUYER_KEYPAIR="../demo-wallets/buyer-keypair.json"
 RPC_URL="https://api.devnet.solana.com"
 # Fallback when accepts[].extra.capabilitiesUrl is missing (preview devnet by default).
-DEFAULT_PR402="${PR402_FACILITATOR_URL:-https://preview.agent.pay402.me}"
+DEFAULT_PR402="${PR402_FACILITATOR_URL:-https://preview.ipay.sh}"
 DEFAULT_PR402="${DEFAULT_PR402%/}"
 
 # Visuals

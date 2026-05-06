@@ -14,12 +14,12 @@ A high-fidelity starter project for **Buyer Agents** (MCP, OpenClaw, AutoGPT) in
 
 ## pr402 facilitator URLs
 
-| Environment | Base URL |
-|-------------|----------|
-| **Production** (Solana Mainnet) | `https://agent.pay402.me` |
-| **Preview** (Solana Devnet) | `https://preview.agent.pay402.me` |
+| Environment | Recommended (concise) | Also available (same APIs; not deprecated) |
+|-------------|------------------------|--------------------------------------------|
+| **Production** (Solana Mainnet) | `https://ipay.sh` | `https://agent.pay402.me` |
+| **Preview** (Solana Devnet) | `https://preview.ipay.sh` | `https://preview.agent.pay402.me` |
 
-Set **`PR402_FACILITATOR_URL`** (Bash, TypeScript via `.env`, Python via `.env`) to override the default preview URL when you work against Mainnet or a self-hosted pr402 fork.
+Set **`PR402_FACILITATOR_URL`** (Bash, TypeScript via `.env`, Python via `.env`) to override the bundled defaults when you work against a different host (for example the alternate `pay402.me` origins above, or a self-hosted pr402 fork).
 
 ## 🚀 One-Line Acquisition
 
@@ -77,7 +77,7 @@ npm install
 ./buy_fortune.sh
 ```
 
-Optional: `export PR402_FACILITATOR_URL=https://agent.pay402.me` for mainnet.
+Optional: `export PR402_FACILITATOR_URL=https://ipay.sh` for mainnet (or `https://agent.pay402.me` — same service).
 
 #### TypeScript
 
@@ -130,7 +130,7 @@ Sellers often publish **`v2:solana:exact`** in **`accepts[]`** (alias for the Un
 
 Live challenges often point at **capabilities** under:
 
-`https://preview.agent.pay402.me/api/v1/facilitator/capabilities`
+`https://preview.ipay.sh/api/v1/facilitator/capabilities` (same path on `https://preview.agent.pay402.me`)
 
 Bash scripts read `accepts[].extra.capabilitiesUrl` when present; otherwise they fall back to **`PR402_FACILITATOR_URL`** or the preview default.
 
