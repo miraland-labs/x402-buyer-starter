@@ -61,6 +61,18 @@ Import paths when developing **inside this repo**: `import { … } from './src/i
 
 ## 🛠️ Usage
 
+### MCP (Cursor / Claude Desktop)
+
+Use the official Solana MCP adapter — no custom server code:
+
+```bash
+npx -y @pr402/mcp-server
+```
+
+Copy [`examples/mcp/cursor-mcp.json`](examples/mcp/cursor-mcp.json) to your project as `.cursor/mcp.json`, set `PR402_PAYER_KEYPAIR_JSON` to your keypair path, and fund the wallet on Devnet. Tool catalog: [`https://preview.ipay.sh/agent-tools.json`](https://preview.ipay.sh/agent-tools.json).
+
+See also: [`pr402/sdk/mcp/README.md`](https://github.com/miralandlabs/pr402/tree/main/sdk/mcp#readme) and [`/agent-integration.md`](https://preview.ipay.sh/agent-integration.md) (MCP section).
+
 ### 1. Setup Your identity
 
 Copy your Solana keypair (JSON) to `demo-wallets/buyer-keypair.json`.
