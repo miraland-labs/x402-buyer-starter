@@ -4,7 +4,6 @@
       "command": "npx",
       "args": ["-y", "@pr402/mcp-server"],
       "env": {
-        "PR402_FACILITATOR_URL": "https://preview.ipay.sh",
         "PR402_PAYER_KEYPAIR_JSON": "/absolute/path/to/demo-wallets/buyer-keypair.json"
       }
     }
