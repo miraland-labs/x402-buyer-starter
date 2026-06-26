@@ -6,11 +6,14 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "start": "ts-node src/run-demos.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "forge:list": "ts-node examples/forge-buy.ts --list",
+    "forge:buy": "ts-node examples/forge-buy.ts --buy"
   },
   "dependencies": {
     "@solana/web3.js": "^1.91.1",
     "axios": "^1.6.8",
+    "bs58": "^5.0.0",
     "dotenv": "^16.4.5"
   },
   "devDependencies": {

@@ -17,4 +17,15 @@ export type { PaymentRequiredBody } from './pr402-exact-flow';
 export { createPay402Fetch } from './fetch-with-payment';
 export type { CreatePay402FetchOptions } from './fetch-with-payment';
 
+export {
+  createForgePayFetch,
+  forgeBuy,
+  forgeSearch,
+} from './forge-client';
+export type {
+  ForgeClientOptions,
+  ForgeListing,
+  ForgeListResponse,
+} from './forge-client';
+
 export { X402Client } from './x402-client';

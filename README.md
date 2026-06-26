@@ -97,6 +97,28 @@ Optional: `export PR402_FACILITATOR_URL=https://ipay.sh` for mainnet (or `https:
 cd typescript
 npm install
 npm start   # runs src/run-demos.ts (X402Client + createPay402Fetch smoke test)
+```
+
+#### Forge marketplace CLI
+
+Browse and buy from [http402 Forge](http402-forge-api/docs/AGENT_API.md):
+
+```bash
+cd typescript
+npm install
+FORGE_API_BASE=http://127.0.0.1:8092 \
+FACILITATOR_BASE=https://preview.ipay.sh/api/v1/facilitator \
+BUYER_SECRET_KEY='[...]' \
+npm run forge:list
+
+npm run forge:buy -- <listing-uuid>
+```
+
+Programmatic API: `forgeSearch`, `forgeBuy`, `createForgePayFetch` from `./src/forge-client.ts` (exported via `index.ts`).
+
+Forge MCP server: see [`forge-mcp/README.md`](forge-mcp/README.md).
+
+```bash
 npm run build  # emits dist/ + .d.ts for SDK-style imports
 ```
 
@@ -157,6 +179,22 @@ Bash scripts read `accepts[].extra.capabilitiesUrl` when present; otherwise they
 - Scripts use **`set -e`** and treat a JSON body with a top-level **`error`** field as **failure** → **non-zero exit**, even when HTTP status is 200.
 - **`build-exact-payment-tx`** responses must include a non-empty **`transaction`**; otherwise the script exits with an error.
 - **`sign.js`**: if Node prints **DEP0040 (punycode)**, it comes from transitive deps; demos run `node --no-deprecation sign.js` to suppress that noise.
+
+## http402 Forge marketplace
+
+Browse and buy digital goods from [http402.trade](https://http402.trade) Forge:
+
+```bash
+cd typescript
+FORGE_API_BASE=http://127.0.0.1:8092 \
+FACILITATOR_BASE=https://preview.ipay.sh/api/v1/facilitator \
+BUYER_SECRET_KEY='[...]' \
+npm run forge:list
+
+npm run forge:buy -- {listing-uuid}
+```
+
+**MCP:** see [`forge-mcp/README.md`](forge-mcp/README.md) for `forge_list`, `forge_preview`, and `forge_purchase` tools.
 
 ---
 Part of the **x402 Agentic Protocol** ecosystem.
