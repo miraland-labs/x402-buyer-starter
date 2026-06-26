@@ -114,7 +114,9 @@ npm run forge:list
 npm run forge:buy -- <listing-uuid>
 ```
 
-Programmatic API: `forgeSearch`, `forgeBuy`, `createForgePayFetch` from `./src/forge-client.ts` (exported via `index.ts`).
+Programmatic API: `forgeSearch`, `forgeBuy`, `forgeGetListing`, `verifyListingContent`, `forgeSaleFeedback`, `createForgePayFetch` from `./src/forge-client.ts` (exported via `index.ts`).
+
+`forgeBuy` returns `saleId` from the `X-Forge-Sale-Id` header. Pass `autoFeedback: true` with `buyerKeypair` + `buyerWallet` to auto-submit `hash_mismatch` when downloaded bytes ≠ listing `contentHash`.
 
 Forge MCP server: see [`forge-mcp/README.md`](forge-mcp/README.md).
 

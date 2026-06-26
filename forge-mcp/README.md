@@ -6,9 +6,9 @@ Minimal [Model Context Protocol](https://modelcontextprotocol.io) server for the
 
 | Tool | Description |
 |------|-------------|
-| `forge_list` | `GET /api/v1/listings` with optional filters and `sort=trending` |
+| `forge_list` | `GET /api/v1/listings` with optional filters and `sort=trending|quality|newest|…` |
 | `forge_preview` | Preview metadata (content-type, length, streaming hint) |
-| `forge_purchase` | Full x402 download flow via pr402 (`BUYER_SECRET_KEY` required) |
+| `forge_purchase` | Full x402 download flow via pr402 (`BUYER_SECRET_KEY` required); returns `saleId` when present |
 
 ## Setup
 

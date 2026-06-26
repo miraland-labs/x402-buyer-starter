@@ -20,10 +20,16 @@ export type { CreatePay402FetchOptions } from './fetch-with-payment';
 export {
   createForgePayFetch,
   forgeBuy,
+  forgeGetListing,
+  forgeSaleFeedback,
   forgeSearch,
+  sha256Hex,
+  verifyListingContent,
 } from './forge-client';
 export type {
+  ForgeBuyResult,
   ForgeClientOptions,
+  ForgeFeedbackOutcome,
   ForgeListing,
   ForgeListResponse,
 } from './forge-client';

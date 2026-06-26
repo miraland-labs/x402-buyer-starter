@@ -1,5 +1,15 @@
+import { createHash } from 'crypto';
+import type { Keypair } from '@solana/web3.js';
+import nacl from 'tweetnacl';
 import { createPay402Fetch } from './fetch-with-payment';
 import { PR402_FACILITATOR_URL_PREVIEW } from './pr402-defaults';
+
+export type ForgeFeedbackOutcome =
+  | 'as_described'
+  | 'hash_mismatch'
+  | 'corrupt'
+  | 'misleading'
+  | 'other';
 
 export interface ForgeListing {
   id: string;
@@ -17,12 +27,21 @@ export interface ForgeListing {
   tags?: string[];
   license?: string;
   contentHash?: string;
+  qualityScore?: number;
+  verifiedFeedbackCount?: number;
   createdAt: string;
 }
 
 export interface ForgeListResponse {
   items: ForgeListing[];
   total: number;
+}
+
+export interface ForgeBuyResult {
+  bytes: Buffer;
+  contentType: string | null;
+  saleId?: string;
+  verify?: 'ok' | 'hash_mismatch' | 'no_hash';
 }
 
 export interface ForgeClientOptions {
@@ -54,8 +73,46 @@ function parseListing(raw: Record<string, unknown>): ForgeListing {
       : raw.content_hash
         ? String(raw.content_hash)
         : undefined,
+    qualityScore:
+      raw.qualityScore != null || raw.quality_score != null
+        ? Number(raw.qualityScore ?? raw.quality_score)
+        : undefined,
+    verifiedFeedbackCount:
+      raw.verifiedFeedbackCount != null || raw.verified_feedback_count != null
+        ? Number(raw.verifiedFeedbackCount ?? raw.verified_feedback_count)
+        : undefined,
     createdAt: String(raw.createdAt ?? raw.created_at ?? ''),
   };
+}
+
+export function sha256Hex(bytes: Buffer): string {
+  return createHash('sha256').update(bytes).digest('hex');
+}
+
+export function verifyListingContent(
+  listing: Pick<ForgeListing, 'contentHash'>,
+  bytes: Buffer,
+): 'ok' | 'hash_mismatch' | 'no_hash' {
+  if (!listing.contentHash) return 'no_hash';
+  return sha256Hex(bytes) === listing.contentHash.toLowerCase()
+    ? 'ok'
+    : 'hash_mismatch';
+}
+
+function signForgeChallenge(keypair: Keypair, message: string): string {
+  const messageBytes = new TextEncoder().encode(message);
+  const signature = nacl.sign.detached(messageBytes, keypair.secretKey);
+  return Buffer.from(signature).toString('base64');
+}
+
+export async function forgeGetListing(
+  options: ForgeClientOptions & { listingId: string },
+): Promise<ForgeListing> {
+  const base = options.forgeApiBase.replace(/\/$/, '');
+  const fetchFn = options.fetchFn ?? fetch;
+  const res = await fetchFn(`${base}/api/v1/listings/${options.listingId}`);
+  if (!res.ok) throw new Error(`forge get listing HTTP ${res.status}`);
+  return parseListing((await res.json()) as Record<string, unknown>);
 }
 
 export async function forgeSearch(
@@ -94,13 +151,77 @@ export async function forgeSearch(
   };
 }
 
+export async function forgeSaleFeedback(
+  options: ForgeClientOptions & {
+    saleId: string;
+    buyerWallet: string;
+    outcome: ForgeFeedbackOutcome;
+    score?: number;
+    note?: string;
+    buyerKeypair?: Keypair;
+    buyerChallenge?: string;
+    buyerSignature?: string;
+    fetchFn?: typeof fetch;
+  },
+): Promise<void> {
+  const base = options.forgeApiBase.replace(/\/$/, '');
+  const fetchFn = options.fetchFn ?? fetch;
+
+  let buyerChallenge = options.buyerChallenge;
+  let buyerSignature = options.buyerSignature;
+
+  if (options.buyerKeypair) {
+    const q = new URLSearchParams({
+      buyer_wallet: options.buyerWallet,
+      sale_id: options.saleId,
+    });
+    const challengeRes = await fetchFn(
+      `${base}/api/v1/buyer/feedback-challenge?${q}`,
+      { cache: 'no-store' },
+    );
+    if (!challengeRes.ok) {
+      throw new Error(`forge feedback challenge HTTP ${challengeRes.status}`);
+    }
+    const challengeJson = (await challengeRes.json()) as { message?: string };
+    buyerChallenge = String(challengeJson.message ?? '');
+    buyerSignature = signForgeChallenge(options.buyerKeypair, buyerChallenge);
+  }
+
+  if (!buyerChallenge || !buyerSignature) {
+    throw new Error(
+      'forgeSaleFeedback requires buyerKeypair or buyerChallenge + buyerSignature',
+    );
+  }
+
+  const res = await fetchFn(`${base}/api/v1/sales/${options.saleId}/feedback`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      buyer_wallet: options.buyerWallet,
+      buyer_challenge: buyerChallenge,
+      buyer_signature: buyerSignature,
+      outcome: options.outcome,
+      score: options.score,
+      note: options.note,
+    }),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`forge sale feedback HTTP ${res.status}: ${text.slice(0, 240)}`);
+  }
+}
+
 export async function forgeBuy(
   options: ForgeClientOptions & {
     listingId: string;
     pay402Fetch: typeof fetch;
     outputPath?: string;
+    listing?: Pick<ForgeListing, 'contentHash'>;
+    autoFeedback?: boolean;
+    buyerWallet?: string;
+    buyerKeypair?: Keypair;
   },
-): Promise<{ bytes: Buffer; contentType: string | null }> {
+): Promise<ForgeBuyResult> {
   const base = options.forgeApiBase.replace(/\/$/, '');
   const url = `${base}/api/v1/listings/${options.listingId}/download`;
   const res = await options.pay402Fetch(url);
@@ -110,15 +231,46 @@ export async function forgeBuy(
   }
   const buf = Buffer.from(await res.arrayBuffer());
   const contentType = res.headers.get('content-type');
+  const saleId = res.headers.get('x-forge-sale-id') ?? undefined;
   if (options.outputPath) {
     const fs = await import('fs/promises');
     await fs.writeFile(options.outputPath, buf);
   }
-  return { bytes: buf, contentType };
+
+  const listing =
+    options.listing ??
+    (options.autoFeedback
+      ? await forgeGetListing({
+          forgeApiBase: options.forgeApiBase,
+          fetchFn: options.fetchFn,
+          listingId: options.listingId,
+        })
+      : undefined);
+
+  const verify = listing ? verifyListingContent(listing, buf) : undefined;
+
+  if (
+    options.autoFeedback &&
+    verify === 'hash_mismatch' &&
+    saleId &&
+    options.buyerKeypair &&
+    options.buyerWallet
+  ) {
+    await forgeSaleFeedback({
+      forgeApiBase: options.forgeApiBase,
+      fetchFn: options.fetchFn,
+      saleId,
+      buyerWallet: options.buyerWallet,
+      buyerKeypair: options.buyerKeypair,
+      outcome: 'hash_mismatch',
+    });
+  }
+
+  return { bytes: buf, contentType, saleId, verify };
 }
 
 export function createForgePayFetch(
-  payer: import('@solana/web3.js').Keypair,
+  payer: Keypair,
   facilitatorBase?: string,
   fetchFn: typeof fetch = fetch,
 ): typeof fetch {
