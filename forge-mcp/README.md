@@ -1,11 +1,13 @@
 # forge-mcp (deprecated)
 
-**Moved to [`http402-forge-cli/packages/forge-mcp`](../../http402-forge-cli/packages/forge-mcp)** as `@http402/forge-mcp`.
+**Moved to npm:** [`@http402/forge-mcp`](https://www.npmjs.com/package/@http402/forge-mcp)
 
-Use the new package for list, preview, buy, **publish**, **delist**, and **vault status** MCP tools.
+Use the published MCP server — no monorepo clone required:
 
 ```bash
-cd ../../http402-forge-cli
-npm install && npm run build
-node packages/forge-mcp/dist/index.js
+npx -y @http402/forge-mcp
 ```
+
+Cursor config example: [`../examples/mcp/forge-cursor-mcp.json`](../examples/mcp/forge-cursor-mcp.json).
+
+Source and docs: [http402-forge-cli/packages/forge-mcp](https://github.com/miralandlabs/http402-forge-cli/tree/main/packages/forge-mcp).

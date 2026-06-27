@@ -71,6 +71,8 @@ npx -y @pr402/mcp-server
 
 Copy [`examples/mcp/cursor-mcp.json`](examples/mcp/cursor-mcp.json) to your project as `.cursor/mcp.json`, set `PR402_PAYER_KEYPAIR_JSON` to your keypair path, and fund the wallet on Devnet. Tool catalog: [`https://preview.ipay.sh/agent-tools.json`](https://preview.ipay.sh/agent-tools.json).
 
+**Forge marketplace MCP:** add the `forge` server from [`examples/mcp/forge-cursor-mcp.json`](examples/mcp/forge-cursor-mcp.json) (`npx -y @http402/forge-mcp`).
+
 See also: [`pr402/sdk/mcp/README.md`](https://github.com/miralandlabs/pr402/tree/main/sdk/mcp#readme) and [`/agent-integration.md`](https://preview.ipay.sh/agent-integration.md) (MCP section).
 
 ### 1. Setup Your identity
@@ -103,26 +105,27 @@ npm start   # runs src/run-demos.ts (X402Client + createPay402Fetch smoke test)
 
 #### Forge marketplace CLI
 
-Use **`@http402/forge-cli`** (Digital Bazaar agent CLI + SDK):
+Install from npm:
 
 ```bash
-cd ../../http402-forge-cli
-npm install && npm run build
+npm install -g @http402/forge-cli
+# or:
+npx @http402/forge-cli list --pretty
 
 export FORGE_API_BASE=https://preview.forge.http402.trade
 export FACILITATOR_BASE=https://preview.ipay.sh
 export FORGE_KEYPAIR=/path/to/keypair.json
 
-node packages/forge-cli/dist/cli-entry.js list --pretty
-node packages/forge-cli/dist/cli-entry.js buy <listing-uuid> --verify
-node packages/forge-cli/dist/cli-entry.js publish --asset ./file.pdf --title "My PDF" --price 0.05
+forge list --pretty
+forge buy <listing-uuid> --verify
+forge publish --asset ./file.pdf --title "My PDF" --price 0.05
 ```
 
-SDK: `@http402/forge-client` in [`http402-forge-cli`](../../http402-forge-cli).
+SDK: [`@http402/forge-client`](https://www.npmjs.com/package/@http402/forge-client) · CLI: [`@http402/forge-cli`](https://www.npmjs.com/package/@http402/forge-cli)
 
-Legacy scripts in this repo (`npm run forge:list`, `npm run forge:buy`) import from `src/forge-client.ts` locally; Forge APIs live in `@http402/forge-client` on npm.
+Legacy scripts in this repo (`npm run forge:list`, `npm run forge:buy`) import from local `src/forge-client.ts` only for backward compatibility.
 
-Forge MCP: see [`http402-forge-cli/packages/forge-mcp`](../../http402-forge-cli/packages/forge-mcp) (`@http402/forge-mcp`).
+**Forge MCP:** `npx -y @http402/forge-mcp` — see [`examples/mcp/forge-cursor-mcp.json`](examples/mcp/forge-cursor-mcp.json).
 
 Optional `.env`: `PR402_FACILITATOR_URL`, `SOLANA_RPC_URL` (reserved / future use).
 
@@ -196,7 +199,7 @@ npm run forge:list
 npm run forge:buy -- {listing-uuid}
 ```
 
-**MCP:** see [`forge-mcp/README.md`](forge-mcp/README.md) for `forge_list`, `forge_preview`, and `forge_purchase` tools.
+**MCP:** `npx -y @http402/forge-mcp` — see [`examples/mcp/forge-cursor-mcp.json`](examples/mcp/forge-cursor-mcp.json) for `forge_list`, `forge_preview`, and `forge_purchase` tools.
 
 ---
 Part of the **x402 Agentic Protocol** ecosystem.

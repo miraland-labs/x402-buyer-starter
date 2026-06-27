@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "pr402": {
+      "command": "npx",
+      "args": ["-y", "@pr402/mcp-server"],
+      "env": {
+        "PR402_PAYER_KEYPAIR_JSON": "/absolute/path/to/demo-wallets/buyer-keypair.json"
+      }
+    },
+    "forge": {
+      "command": "npx",
+      "args": ["-y", "@http402/forge-mcp"],
+      "env": {
+        "FORGE_API_BASE": "https://preview.forge.http402.trade",
+        "FACILITATOR_BASE": "https://preview.ipay.sh",
+        "FORGE_KEYPAIR": "/absolute/path/to/demo-wallets/buyer-keypair.json"
+      }
+    }
+  }
+}
