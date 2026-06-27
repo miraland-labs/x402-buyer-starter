@@ -4,6 +4,8 @@ import nacl from 'tweetnacl';
 import { createPay402Fetch } from './fetch-with-payment';
 import { PR402_FACILITATOR_URL_PREVIEW } from './pr402-defaults';
 
+/** @deprecated Use `@http402/forge-client` from http402-forge-cli for new integrations. */
+
 export type ForgeFeedbackOutcome =
   | 'as_described'
   | 'hash_mismatch'

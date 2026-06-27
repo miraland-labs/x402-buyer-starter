@@ -9,7 +9,7 @@ A high-fidelity starter project for **Buyer Agents** (MCP, OpenClaw, AutoGPT) in
 | Language | Path | Best For... |
 | :--- | :--- | :--- |
 | **Bash** | `bash/` | DevOps, CLI tools, minimalists. |
-| **TypeScript** | `typescript/` | Web agents, fetch wrapper, reusable SDK entrypoints. |
+| **TypeScript** | `typescript/` | Web agents, fetch wrapper, reusable SDK entrypoints. Published on npm as **`@pr402/buyer-typescript`**. |
 | **Python** | `python/` | AI Agents, LLM-driven loops. |
 
 ## pr402 facilitator URLs
@@ -93,6 +93,8 @@ Optional: `export PR402_FACILITATOR_URL=https://ipay.sh` for mainnet (or `https:
 
 #### TypeScript
 
+Install from npm: `npm install @pr402/buyer-typescript`, or develop from source:
+
 ```bash
 cd typescript
 npm install
@@ -101,28 +103,26 @@ npm start   # runs src/run-demos.ts (X402Client + createPay402Fetch smoke test)
 
 #### Forge marketplace CLI
 
-Browse and buy from [http402 Forge](http402-forge-api/docs/AGENT_API.md):
+Use **`@http402/forge-cli`** (Digital Bazaar agent CLI + SDK):
 
 ```bash
-cd typescript
-npm install
-FORGE_API_BASE=http://127.0.0.1:8092 \
-FACILITATOR_BASE=https://preview.ipay.sh/api/v1/facilitator \
-BUYER_SECRET_KEY='[...]' \
-npm run forge:list
+cd ../../http402-forge-cli
+npm install && npm run build
 
-npm run forge:buy -- <listing-uuid>
+export FORGE_API_BASE=https://preview.forge.http402.trade
+export FACILITATOR_BASE=https://preview.ipay.sh
+export FORGE_KEYPAIR=/path/to/keypair.json
+
+node packages/forge-cli/dist/cli-entry.js list --pretty
+node packages/forge-cli/dist/cli-entry.js buy <listing-uuid> --verify
+node packages/forge-cli/dist/cli-entry.js publish --asset ./file.pdf --title "My PDF" --price 0.05
 ```
 
-Programmatic API: `forgeSearch`, `forgeBuy`, `forgeGetListing`, `verifyListingContent`, `forgeSaleFeedback`, `createForgePayFetch` from `./src/forge-client.ts` (exported via `index.ts`).
+SDK: `@http402/forge-client` in [`http402-forge-cli`](../../http402-forge-cli).
 
-`forgeBuy` returns `saleId` from the `X-Forge-Sale-Id` header. Pass `autoFeedback: true` with `buyerKeypair` + `buyerWallet` to auto-submit `hash_mismatch` when downloaded bytes ≠ listing `contentHash`.
+Legacy scripts in this repo (`npm run forge:list`, `npm run forge:buy`) import from `src/forge-client.ts` locally; Forge APIs live in `@http402/forge-client` on npm.
 
-Forge MCP server: see [`forge-mcp/README.md`](forge-mcp/README.md).
-
-```bash
-npm run build  # emits dist/ + .d.ts for SDK-style imports
-```
+Forge MCP: see [`http402-forge-cli/packages/forge-mcp`](../../http402-forge-cli/packages/forge-mcp) (`@http402/forge-mcp`).
 
 Optional `.env`: `PR402_FACILITATOR_URL`, `SOLANA_RPC_URL` (reserved / future use).
 

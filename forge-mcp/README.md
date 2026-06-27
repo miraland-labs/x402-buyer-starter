@@ -1,52 +1,11 @@
-# forge-mcp
+# forge-mcp (deprecated)
 
-Minimal [Model Context Protocol](https://modelcontextprotocol.io) server for the http402 Forge marketplace.
+**Moved to [`http402-forge-cli/packages/forge-mcp`](../../http402-forge-cli/packages/forge-mcp)** as `@http402/forge-mcp`.
 
-## Tools
-
-| Tool | Description |
-|------|-------------|
-| `forge_list` | `GET /api/v1/listings` with optional filters and `sort=trending|quality|newest|…` |
-| `forge_preview` | Preview metadata (content-type, length, streaming hint) |
-| `forge_purchase` | Full x402 download flow via pr402 (`BUYER_SECRET_KEY` required); returns `saleId` when present |
-
-## Setup
+Use the new package for list, preview, buy, **publish**, **delist**, and **vault status** MCP tools.
 
 ```bash
-cd ../typescript && npm install && npm run build
-cd ../forge-mcp && npm install && npm run build
+cd ../../http402-forge-cli
+npm install && npm run build
+node packages/forge-mcp/dist/index.js
 ```
-
-## Environment
-
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `FORGE_API_BASE` | yes | Forge API root, e.g. `http://127.0.0.1:8092` |
-| `FACILITATOR_BASE` | yes | pr402 facilitator, e.g. `https://preview.ipay.sh/api/v1/facilitator` |
-| `BUYER_SECRET_KEY` | for purchase | Base58 or JSON byte array Solana secret key |
-
-## Cursor / Claude Desktop
-
-```json
-{
-  "mcpServers": {
-    "forge": {
-      "command": "node",
-      "args": ["/path/to/x402-buyer-starter/forge-mcp/dist/index.js"],
-      "env": {
-        "FORGE_API_BASE": "http://127.0.0.1:8092",
-        "FACILITATOR_BASE": "https://preview.ipay.sh/api/v1/facilitator",
-        "BUYER_SECRET_KEY": "..."
-      }
-    }
-  }
-}
-```
-
-## Run
-
-```bash
-npm start
-```
-
-Uses stdio transport (stdin/stdout).

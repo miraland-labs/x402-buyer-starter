@@ -65,7 +65,10 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
           category: { type: 'string' },
           seller_wallet: { type: 'string' },
           agent_friendly: { type: 'boolean' },
-          sort: { type: 'string', enum: ['trending', 'newest', 'price_asc', 'price_desc'] },
+          sort: {
+            type: 'string',
+            enum: ['trending', 'newest', 'price_asc', 'price_desc', 'quality'],
+          },
           limit: { type: 'number' },
           offset: { type: 'number' },
         },
@@ -84,7 +87,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: 'forge_purchase',
-      description: 'Purchase and download a listing via x402 (requires BUYER_SECRET_KEY)',
+      description:
+        'Purchase and download via x402; verifies SHA-256 vs contentHash and auto-submits hash_mismatch feedback when needed (requires BUYER_SECRET_KEY)',
       inputSchema: {
         type: 'object',
         properties: {
@@ -169,10 +173,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       };
     }
     const id = String(a.listing_id ?? '');
-    const { bytes, contentType } = await forgeBuy({
+    const buyerWallet = payer!.publicKey.toBase58();
+    const { bytes, contentType, saleId, verify } = await forgeBuy({
       forgeApiBase,
       listingId: id,
       pay402Fetch,
+      autoFeedback: true,
+      buyerWallet,
+      buyerKeypair: payer!,
     });
     return {
       content: [
@@ -181,8 +189,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           text: JSON.stringify(
             {
               listing_id: id,
+              sale_id: saleId ?? null,
               bytes: bytes.length,
               content_type: contentType,
+              verify: verify ?? null,
+              hash_mismatch_feedback:
+                verify === 'hash_mismatch' && saleId ? 'submitted' : null,
               note: 'Binary saved in memory only; write to disk in your agent if needed',
             },
             null,

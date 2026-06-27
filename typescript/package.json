@@ -1,14 +1,68 @@
 {
-  "name": "x402-buyer-typescript",
-  "version": "1.1.0",
-  "description": "Premium TypeScript Agentic Buyer for X402 + pr402 one-click fetch wrapper",
+  "name": "@pr402/buyer-typescript",
+  "version": "1.0.0",
+  "description": "TypeScript payment rail for X402 + pr402 exact flow — fetch wrapper and Solana signing helpers",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/miraland-labs/x402-buyer-starter.git",
+    "directory": "typescript"
+  },
+  "keywords": [
+    "x402",
+    "pr402",
+    "402",
+    "payment",
+    "solana",
+    "agent",
+    "fetch",
+    "http402"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./fetch-with-payment": {
+      "types": "./dist/fetch-with-payment.d.ts",
+      "import": "./dist/fetch-with-payment.js",
+      "require": "./dist/fetch-with-payment.js",
+      "default": "./dist/fetch-with-payment.js"
+    },
+    "./pr402-defaults": {
+      "types": "./dist/pr402-defaults.d.ts",
+      "import": "./dist/pr402-defaults.js",
+      "require": "./dist/pr402-defaults.js",
+      "default": "./dist/pr402-defaults.js"
+    },
+    "./pr402-exact-flow": {
+      "types": "./dist/pr402-exact-flow.d.ts",
+      "import": "./dist/pr402-exact-flow.js",
+      "require": "./dist/pr402-exact-flow.js",
+      "default": "./dist/pr402-exact-flow.js"
+    }
+  },
   "scripts": {
     "start": "ts-node src/run-demos.ts",
     "build": "tsc",
+    "prepublishOnly": "npm run build",
     "forge:list": "ts-node examples/forge-buy.ts --list",
     "forge:buy": "ts-node examples/forge-buy.ts --buy"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "dependencies": {
     "@solana/web3.js": "^1.91.1",

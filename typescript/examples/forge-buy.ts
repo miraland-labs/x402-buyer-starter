@@ -8,6 +8,7 @@
  *   npx ts-node examples/forge-buy.ts --list
  *
  *   ... --buy {listing-uuid}
+ *   ... --buy {listing-uuid} --verify
  */
 import 'dotenv/config';
 import { Keypair } from '@solana/web3.js';
@@ -35,6 +36,7 @@ function envBase(name: string, fallback: string): string {
 async function main() {
   const args = process.argv.slice(2);
   const listMode = args.includes('--list');
+  const verifyMode = args.includes('--verify');
   const buyIdx = args.indexOf('--buy');
   const buyId = buyIdx >= 0 ? args[buyIdx + 1] : undefined;
 
@@ -52,8 +54,12 @@ async function main() {
     });
     console.log(`Found ${total} listings (showing ${items.length}):\n`);
     for (const item of items) {
+      const quality =
+        item.verifiedFeedbackCount != null && item.verifiedFeedbackCount > 0
+          ? `  quality=${item.qualityScore ?? '—'} (${item.verifiedFeedbackCount})`
+          : '';
       console.log(
-        `${item.id}  ${(item.priceMicroUsdc / 1e6).toFixed(2)} USDC  [${item.category}] ${item.title}`,
+        `${item.id}  ${(item.priceMicroUsdc / 1e6).toFixed(2)} USDC  [${item.category}] ${item.title}${quality}`,
       );
     }
     return;
@@ -62,20 +68,31 @@ async function main() {
   if (buyId) {
     const payer = loadKeypair();
     const pay402Fetch = createForgePayFetch(payer, facilitatorBase);
-    console.log(`Buying ${buyId} as ${payer.publicKey.toBase58()}…`);
-    const { bytes, contentType } = await forgeBuy({
+    const buyerWallet = payer.publicKey.toBase58();
+    console.log(`Buying ${buyId} as ${buyerWallet}…`);
+    const { bytes, contentType, saleId, verify } = await forgeBuy({
       forgeApiBase,
       listingId: buyId,
       pay402Fetch,
       outputPath: `forge-${buyId.slice(0, 8)}.bin`,
+      autoFeedback: verifyMode,
+      buyerWallet: verifyMode ? buyerWallet : undefined,
+      buyerKeypair: verifyMode ? payer : undefined,
     });
     console.log(
       `Saved forge-${buyId.slice(0, 8)}.bin (${bytes.length} bytes, ${contentType ?? 'unknown type'})`,
     );
+    if (verifyMode) {
+      console.log(`Sale id: ${saleId ?? '(none — legacy download)'}`);
+      console.log(`Content verify: ${verify ?? 'skipped'}`);
+      if (verify === 'hash_mismatch' && saleId) {
+        console.log('Submitted sale feedback: hash_mismatch');
+      }
+    }
     return;
   }
 
-  console.error('Usage: forge-buy.ts --list | --buy {listing-id}');
+  console.error('Usage: forge-buy.ts --list | --buy {listing-id} [--verify]');
   process.exit(1);
 }
 

@@ -1,5 +1,5 @@
 /**
- * @miraland-labs x402 buyer utilities for pr402 (`exact` rail).
+ * @pr402/buyer-typescript — payment rail utilities for pr402 (`exact` scheme).
  */
 
 export {
@@ -16,22 +16,5 @@ export type { PaymentRequiredBody } from './pr402-exact-flow';
 
 export { createPay402Fetch } from './fetch-with-payment';
 export type { CreatePay402FetchOptions } from './fetch-with-payment';
-
-export {
-  createForgePayFetch,
-  forgeBuy,
-  forgeGetListing,
-  forgeSaleFeedback,
-  forgeSearch,
-  sha256Hex,
-  verifyListingContent,
-} from './forge-client';
-export type {
-  ForgeBuyResult,
-  ForgeClientOptions,
-  ForgeFeedbackOutcome,
-  ForgeListing,
-  ForgeListResponse,
-} from './forge-client';
 
 export { X402Client } from './x402-client';
