@@ -10,6 +10,8 @@ For **http402 Forge** (listings, buy, publish, vault), use [`@http402/forge-clie
 npm install @pr402/buyer-typescript
 ```
 
+Production agents should use [`@pr402/client`](https://www.npmjs.com/package/@pr402/client). This package is the starter demo; add the buyer skill's safety checks before using it with funds.
+
 Requires **Node.js 18+** (global `fetch`) or pass a compatible `fetch` to the helpers that accept it.
 
 ## Subpath imports
@@ -59,9 +61,7 @@ const client = new X402Client({
   defaultFacilitatorBaseUrl: PR402_FACILITATOR_URL_PREVIEW,
 });
 
-const data = await client.buy('https://preview.example.com/api/resource', {
-  query_type: 'daily',
-});
+const data = await client.buy('https://preview.example.com/api/resource', {});
 ```
 
 ## Facilitator URLs

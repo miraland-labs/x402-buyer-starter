@@ -10,7 +10,7 @@ and copied, not grown into a framework.
 
 ## Topology
 
-- `bash/`        — `./buy_fortune.sh`, `./buy_balance.sh` (uses `sign.js` for signing).
+- `bash/`        — `./buy_balance.sh` (uses `sign.js` for signing).
 - `typescript/`  — Node ≥ 18 (global `fetch`), `npm start`, `npm run build` → `dist/`.
 - `python/`      — `pip install -r requirements.txt`, `python index.py`.
 
@@ -36,5 +36,5 @@ No root-level build. Each directory is self-contained.
 ```bash
 cd typescript && npm install && npm run build
 cd python     && python -m pip install -r requirements.txt && python -c "import x402_client"
-cd bash       && bash -n buy_fortune.sh && bash -n buy_balance.sh && node --check sign.js
+cd bash       && bash -n buy_balance.sh && node --check sign.js
 ```

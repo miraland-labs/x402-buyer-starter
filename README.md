@@ -9,7 +9,7 @@ A high-fidelity starter project for **Buyer Agents** (MCP, OpenClaw, AutoGPT) in
 | Language | Path | Best For... |
 | :--- | :--- | :--- |
 | **Bash** | `bash/` | DevOps, CLI tools, minimalists. |
-| **TypeScript** | `typescript/` | Web agents, fetch wrapper, reusable SDK entrypoints. Published on npm as **`@pr402/buyer-typescript`**. |
+| **TypeScript** | `typescript/` | Demo fetch wrapper and signing helpers, published as **`@pr402/buyer-typescript`**. Production agents use **`npm i @pr402/client`**. |
 | **Python** | `python/` | AI Agents, LLM-driven loops. |
 
 ## pr402 facilitator URLs
@@ -23,13 +23,14 @@ Set **`PR402_FACILITATOR_URL`** (Bash, TypeScript via `.env`, Python via `.env`)
 
 ## 🚀 One-Line Acquisition
 
-The `X402Client` entry point wraps HTTP + 402 handling + local signing:
+Production Node agents use **`@pr402/client`** (`X402AgentClient.fetchWithAutoPay`). The `X402Client` below is this repo's demo client, published as **`@pr402/buyer-typescript`**. It wraps HTTP + 402 handling + local signing. The URL is the Devnet SPL balance check (`exact` rail):
 
 ```typescript
-const fortune = await client.buy("https://preview.aethervane.hashspace.me/api/v1/fortune", {
-    query_type: "liuyao",
-    value: "8,7,9,7,8,6"
-});
+const balance = await client.buy(
+    "https://preview.spl-token.signer-payer.me/api/v1/check-balance?wallet=WALLET&spl-token=4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+    {},
+    "GET"
+);
 ```
 
 ### One-click `fetch` wrapper (TypeScript)
@@ -49,11 +50,9 @@ const payFetch = createPay402Fetch(fetch, {
   defaultFacilitatorBaseUrl: process.env.PR402_FACILITATOR_URL ?? PR402_FACILITATOR_URL_PREVIEW,
 });
 
-const res = await payFetch('https://preview.aethervane.hashspace.me/api/v1/fortune', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ request_id: 'r1', fortune: { query_type: 'daily' } }),
-});
+const res = await payFetch(
+  'https://preview.spl-token.signer-payer.me/api/v1/check-balance?wallet=WALLET&spl-token=4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU'
+);
 const json = await res.json();
 ```
 
@@ -88,7 +87,7 @@ Copy your Solana keypair (JSON) to `demo-wallets/buyer-keypair.json`.
 ```bash
 cd bash
 npm install
-./buy_fortune.sh
+./buy_balance.sh
 ```
 
 Optional: `export PR402_FACILITATOR_URL=https://ipay.sh` for mainnet (or `https://agent.pay402.me` — same service).
@@ -138,20 +137,6 @@ python index.py
 ```
 
 Use `PR402_FACILITATOR_URL` in `.env` for Mainnet.
-
-## 🧪 Fortune Category Test Vectors
-
-The buyer demos now purchase all AetherVane fortune categories in one run. These are the exact test inputs used and the response shape observed in live preview runs.
-
-| Category (`query_type`) | Input payload | Observed response summary |
-| :--- | :--- | :--- |
-| `liuyao` | `{"query_type":"liuyao","value":"8,7,9,7,8,6"}` | `luck_level=3`, `luck_enum=NEUTRAL_FLOW`, `engine=LiuYao_Coin_Method` |
-| `number` | `{"query_type":"number","value":"386"}` | `luck_level=4`, `luck_enum=STEADY_RISE`, `engine=Meihua_Yi_Shu` |
-| `name` | `{"query_type":"name","value":"Satoshi Nakamoto"}` | `luck_level=5`, `luck_enum=SUPREME_ASCENT`, `engine=Onomancy_81` |
-| `daily` | `{"query_type":"daily"}` | `luck_level=4`, `luck_enum=STEADY_RISE`, `engine=Almanac_Daily` |
-
-All categories return JSON with core fields like `luck_level`, `luck_enum`, `risk_multiplier`, `recommended_action`, `engine`, and `description`.
-For `daily`, output is deterministic for the same UTC date, but expected to change when the date changes.
 
 ## 🔍 Key Concepts for Agents
 

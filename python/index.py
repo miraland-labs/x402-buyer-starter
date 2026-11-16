@@ -17,38 +17,9 @@ async def main():
 
     print("\033[32m=== X402 BUYER STARTER: PYTHON AGENT ACQUISITION ===\033[0m\n")
 
-    # --- Example 1: Buying Fortunes (all categories) ---
+    # --- Example 1: Checking SPL Balance ---
     try:
-        print("\033[36m>>> DEMO 1: AETHERVANE DIVINATION (ALL CATEGORIES) <<<\033[0m")
-        fortune_inputs = [
-            {"query_type": "liuyao", "value": "8,7,9,7,8,6"},
-            {"query_type": "number", "value": "386"},
-            {"query_type": "name", "value": "Satoshi Nakamoto"},
-            {"query_type": "daily"},
-        ]
-        for request in fortune_inputs:
-            import time
-            import random
-            wrapped_request = {
-                "request_id": f"demo-python-{int(time.time())}-{random.randint(1000, 9999)}",
-                "fortune": request
-            }
-            print(f"\033[33m[INPUT]\033[0m {wrapped_request}")
-            fortune_res = await client.buy(
-                "https://preview.aethervane.hashspace.me/api/v1/fortune",
-                wrapped_request
-            )
-            fortune = fortune_res.get("fortune", fortune_res)
-            print("\033[32m[RESULT] Divination Successful!\033[0m")
-            print(f"Luck Level: {fortune['luck_level']}/5 ({fortune['luck_enum']})")
-            print(f"Engine: {fortune['engine']}")
-            print(f"Reading: {fortune['description']}\n")
-    except Exception as e:
-        print(f"Demo 1 Failed: {e}")
-
-    # --- Example 2: Checking SPL Balance ---
-    try:
-        print("\033[36m>>> DEMO 2: SPL TOKEN BALANCE VERIFICATION <<<\033[0m")
+        print("\033[36m>>> DEMO 1: SPL TOKEN BALANCE VERIFICATION <<<\033[0m")
         usdc_mint = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"
         wallet_to_check = "buyA5hR1Z9KtHQRBTmLkjsFfjAabDwdZtrRC6edqxAJ"
         
@@ -62,7 +33,7 @@ async def main():
         print(f"Balance UI: {balance_res['balance_ui']}")
         print(f"Verified: {'YES' if balance_res['balance_met'] else 'NO'}\n")
     except Exception as e:
-        print(f"Demo 2 Failed: {e}")
+        print(f"Demo 1 Failed: {e}")
 
 if __name__ == "__main__":
     asyncio.run(main())
